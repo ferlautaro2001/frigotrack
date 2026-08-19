@@ -3,8 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FrigoTrack - Gestión Logística</title>
+    <title>FrigoTrack - Logistics Manager Hub</title>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="./assets/js/script.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
@@ -14,141 +15,495 @@
     />
     <link rel="stylesheet" href="./assets/css/styles.css" />
   </head>
-  <body class="min-h-screen text-steel-800">
-    <div class="max-w-7xl mx-auto p-3 sm:p-6">
-      <header class="mb-4 sm:mb-6">
-        <div class="glass-card rounded-2xl shadow-xl p-4 sm:p-6 border border-steel-200">
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <div>
-              <h1 class="text-2xl sm:text-3xl font-bold text-navy-900 flex items-center gap-3">
-                <i class="fa-solid fa-snowflake text-navy-700"></i>
-                FrigoTrack
-              </h1>
-              <p class="text-sm sm:text-base text-steel-600">Control de recepción, stock y despacho de carne congelada</p>
-            </div>
-            <div class="flex items-center gap-3">
-              <span id="currentRoleBadge" class="px-3 py-1 rounded-full text-sm font-semibold bg-steel-200 text-steel-700">
-                Sin sesión
-              </span>
-              <button
-                id="logoutBtn"
-                class="hidden px-4 py-2 rounded-lg bg-navy-900 text-white hover:bg-navy-800 transition"
-                type="button"
-              >
-                <i class="fa-solid fa-right-from-bracket mr-2"></i>Cerrar sesión
-              </button>
-            </div>
+  <body class="min-h-screen text-slate-100 selection:bg-sky-500 selection:text-white bg-[#090d16]">
+    
+    <!-- STANDALONE AUTHENTICATION SCREEN (Shown when NOT logged in) -->
+    <div id="authScreen" class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-slate-950 via-[#0b0f17] to-slate-950">
+      <!-- Background Ambient Glow Effects -->
+      <div class="absolute -top-40 -left-40 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="w-full max-w-md glass-card rounded-3xl p-8 border border-slate-800 shadow-2xl relative z-10 space-y-6">
+        <!-- Brand Logo Header -->
+        <div class="text-center space-y-3">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400 shadow-[0_0_20px_rgba(56,189,248,0.25)]">
+            <i class="fa-solid fa-snowflake text-2xl animate-pulse"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl font-black tracking-tight text-white">
+              Frigo<span class="text-sky-400 font-normal">Track</span>
+            </h1>
+            <p class="text-xs text-slate-400 font-medium mt-1">Gestión Logística de Cadena de Frío</p>
           </div>
         </div>
-      </header>
 
-      <div id="mainApp" class="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-4 sm:gap-6">
-        <aside id="sidebar" class="hidden glass-card rounded-2xl shadow-xl border border-steel-200 p-3 h-fit lg:sticky lg:top-6">
-          <nav class="space-y-2" id="navContainer">
-            <button data-target="screen-login" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-steel-200 transition">
-              <i class="fa-solid fa-user-lock mr-2"></i>Login / Dashboard
-            </button>
-            <button data-target="screen-recepcion" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-steel-200 transition">
-              <i class="fa-solid fa-clipboard-check mr-2"></i>Recepción
-            </button>
-            <button data-target="screen-stock" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-steel-200 transition">
-              <i class="fa-solid fa-boxes-stacked mr-2"></i>Stock / Inventario
-            </button>
-            <button data-target="screen-despacho" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-steel-200 transition">
-              <i class="fa-solid fa-truck-fast mr-2"></i>Venta y Despacho
-            </button>
-            <button data-target="screen-remito" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-steel-200 transition">
-              <i class="fa-solid fa-file-invoice mr-2"></i>Generación de Remito
-            </button>
-            <button data-target="screen-perdidas" class="nav-btn w-full text-left px-3 py-2 rounded-lg hover:bg-steel-200 transition">
-              <i class="fa-solid fa-triangle-exclamation mr-2"></i>Pérdidas / Devoluciones
-            </button>
-          </nav>
-        </aside>
+        <!-- Login Form Controls -->
+        <div class="space-y-4 pt-2">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider" for="roleSelect">Rol Operativo</label>
+            <select id="roleSelect" class="w-full rounded-xl p-3 text-xs outline-none bg-slate-900/90 border border-slate-800 focus:border-sky-500">
+              <option value="">Seleccionar rol...</option>
+              <option value="Administrador">Administrador</option>
+              <option value="Recepción">Recepción</option>
+              <option value="Logística">Logística</option>
+            </select>
+          </div>
 
-        <main class="space-y-4 sm:space-y-6">
-          <section id="screen-login" class="screen active glass-card rounded-2xl shadow-xl border border-steel-200 p-4 sm:p-6">
-            <h2 class="text-xl sm:text-2xl font-bold text-navy-900 mb-4 flex items-center gap-2">
-              <i class="fa-solid fa-user-shield"></i>Acceso al sistema
-            </h2>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider" for="userName">Nombre de Usuario</label>
+            <input id="userName" type="text" placeholder="Ej: operador01" class="w-full rounded-xl p-3 text-xs outline-none bg-slate-900/90 border border-slate-800 focus:border-sky-500" />
+          </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-semibold mb-1" for="roleSelect">Rol</label>
-                <select id="roleSelect" class="w-full border border-steel-300 rounded-lg p-2.5 focus:ring-2 focus:ring-navy-700 outline-none">
-                  <option value="">Seleccionar rol...</option>
-                  <option value="Administrador">Administrador</option>
-                  <option value="Recepción">Recepción</option>
-                  <option value="Logística">Logística</option>
-                </select>
+          <button id="loginBtn" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 font-extrabold text-xs tracking-wide uppercase hover:brightness-110 transition-all duration-200 shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2 mt-2" type="button">
+            <i class="fa-solid fa-right-to-bracket text-sm"></i>Ingresar al Tablero
+          </button>
+        </div>
+
+        <!-- Footer note -->
+        <p class="text-[11px] text-center text-slate-500 border-t border-slate-800/80 pt-4">
+          <i class="fa-solid fa-shield-halved text-sky-400 mr-1"></i>Acceso Restringido - Control de Calidad Frigorífica
+        </p>
+      </div>
+    </div>
+
+    <!-- MAIN APPLICATION DASHBOARD LAYOUT (Hidden when NOT logged in) -->
+    <div id="appLayout" class="flex min-h-screen hidden relative">
+      
+      <!-- MOBILE SIDEBAR BACKDROP OVERLAY -->
+      <div id="sidebarOverlay" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-30 lg:hidden"></div>
+
+      <!-- FIXED / MOBILE SLIDE-OUT LEFT SIDEBAR NAVIGATION -->
+      <aside id="sidebar" class="w-64 glass-card border-r border-slate-800/80 p-5 flex-col justify-between hidden lg:flex fixed top-0 bottom-0 left-0 z-40 bg-slate-950/95 lg:bg-slate-950/40 backdrop-blur-xl transition-all duration-300">
+        <div class="space-y-6">
+          <!-- Logo & Brand Header -->
+          <div class="flex items-center justify-between px-2 py-1">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400 shadow-[0_0_15px_rgba(56,189,248,0.2)]">
+                <i class="fa-solid fa-snowflake text-xl"></i>
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-1" for="userName">Usuario</label>
-                <input id="userName" type="text" placeholder="Ej: operador01" class="w-full border border-steel-300 rounded-lg p-2.5 focus:ring-2 focus:ring-navy-700 outline-none" />
+                <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-1">
+                  Frigo<span class="text-sky-400 font-normal">Track</span>
+                </h1>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Cold Chain Hub</p>
+              </div>
+            </div>
+            <!-- Close Mobile Menu Button -->
+            <button id="closeSidebarBtn" class="lg:hidden text-slate-400 hover:text-white p-1">
+              <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+          </div>
+
+          <!-- Navigation Links Container -->
+          <nav class="space-y-1.5" id="navContainer">
+            <button data-target="screen-login" class="nav-btn active w-full text-left px-3.5 py-2.5 rounded-xl font-semibold text-xs flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <i class="fa-solid fa-house w-4 text-center"></i>Dashboard
+              </div>
+            </button>
+            <button data-target="screen-recepcion" class="nav-btn w-full text-left px-3.5 py-2.5 rounded-xl font-medium text-xs flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <i class="fa-solid fa-calendar-check w-4 text-center"></i>Receptions
+              </div>
+            </button>
+            <button data-target="screen-stock" class="nav-btn w-full text-left px-3.5 py-2.5 rounded-xl font-medium text-xs flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <i class="fa-solid fa-box-archive w-4 text-center"></i>Storage & Stock
+              </div>
+            </button>
+
+            <button data-target="screen-stock" class="nav-btn w-full text-left px-3.5 py-2.5 rounded-xl font-medium text-xs flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <i class="fa-solid fa-triangle-exclamation w-4 text-center"></i>Alerts
+              </div>
+              <span id="kpiSidebarAlerts" class="w-5 h-5 rounded-full bg-sky-500/20 text-sky-400 text-[10px] font-bold flex items-center justify-center border border-sky-500/30">9</span>
+            </button>
+
+            <button data-target="screen-despacho" class="nav-btn w-full text-left px-3.5 py-2.5 rounded-xl font-medium text-xs flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <i class="fa-solid fa-truck-fast w-4 text-center"></i>Dispatch
+              </div>
+            </button>
+
+            <button data-target="screen-remito" class="nav-btn w-full text-left px-3.5 py-2.5 rounded-xl font-medium text-xs flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <i class="fa-solid fa-file-invoice w-4 text-center"></i>Reports & Remitos
+              </div>
+            </button>
+
+            <button data-target="screen-perdidas" class="nav-btn w-full text-left px-3.5 py-2.5 rounded-xl font-medium text-xs flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <i class="fa-solid fa-gear w-4 text-center"></i>Mermas & Adjustments
+              </div>
+            </button>
+          </nav>
+        </div>
+
+        <!-- Logout Bottom Section -->
+        <div class="pt-4 border-t border-slate-800/80">
+          <button id="logoutBtn" class="nav-btn w-full text-left px-3.5 py-2.5 rounded-xl font-medium text-xs flex items-center gap-3 text-slate-400 hover:text-rose-400 transition" type="button">
+            <i class="fa-solid fa-right-from-bracket w-4 text-center"></i>Cerrar Sesión
+          </button>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT WRAPPER -->
+      <div class="flex-1 lg:ml-64 flex flex-col min-w-0">
+        <!-- TOP HEADER BAR -->
+        <header class="p-3 sm:px-8 sm:py-4 border-b border-slate-800/60 bg-slate-950/60 backdrop-blur-md sticky top-0 z-20 flex items-center justify-between gap-3">
+          
+          <!-- Mobile Menu Hamburger Trigger -->
+          <button id="mobileMenuBtn" type="button" class="lg:hidden w-9 h-9 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white shrink-0">
+            <i class="fa-solid fa-bars text-sm"></i>
+          </button>
+
+          <!-- Search Bar Input -->
+          <div class="relative w-full max-w-[200px] sm:max-w-md">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+            <input type="text" placeholder="Buscar..." class="w-full pl-8 pr-3 py-1.5 sm:py-2 rounded-xl text-xs bg-slate-900/80 border border-slate-800 text-slate-200 outline-none placeholder:text-slate-500 focus:border-sky-500/50" />
+          </div>
+
+          <!-- Top Right Section: Bell & User Profile -->
+          <div class="flex items-center gap-2 sm:gap-4 shrink-0 relative">
+            <!-- Notification Bell Trigger Button -->
+            <button id="notificationBellBtn" type="button" class="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition">
+              <i class="fa-solid fa-bell text-xs"></i>
+              <span id="notificationBadge" class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-slate-950 font-bold text-[9px] flex items-center justify-center">3</span>
+            </button>
+
+            <!-- NOTIFICATION DROPDOWN POPUP -->
+            <div id="notificationDropdown" class="hidden absolute right-0 top-12 w-72 sm:w-96 glass-card rounded-2xl p-4 shadow-2xl border border-slate-800 z-50 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-bell text-sky-400 text-xs"></i>
+                  <h4 class="text-xs font-bold text-white uppercase tracking-wider">Notificaciones Logísticas</h4>
+                </div>
+                <button id="markReadBtn" class="text-[10px] text-sky-400 font-semibold hover:underline">Marcar leídas</button>
+              </div>
+
+              <!-- Notification Items List -->
+              <div class="space-y-2 text-xs">
+                <div class="notification-item bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 flex items-start gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fa-solid fa-circle-exclamation text-xs"></i>
+                  </div>
+                  <div>
+                    <p class="font-bold text-slate-200 text-[11px]">Lote Próximo a Vencer (FT90125)</p>
+                    <p class="text-[10px] text-slate-400">Vencimiento en menos de 30 días en Cámara 1 - A3.</p>
+                    <span class="text-[9px] text-slate-500">Hace 10 min</span>
+                  </div>
+                </div>
+
+                <div class="notification-item bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 flex items-start gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fa-solid fa-temperature-three-quarters text-xs"></i>
+                  </div>
+                  <div>
+                    <p class="font-bold text-slate-200 text-[11px]">Control de Temperatura</p>
+                    <p class="text-[10px] text-slate-400">Camión #3 ingresó con -17°C (Alerta de frío).</p>
+                    <span class="text-[9px] text-slate-500">Hace 35 min</span>
+                  </div>
+                </div>
+
+                <div class="notification-item bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 flex items-start gap-3">
+                  <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fa-solid fa-circle-check text-xs"></i>
+                  </div>
+                  <div>
+                    <p class="font-bold text-slate-200 text-[11px]">Despacho Confirmado</p>
+                    <p class="text-[10px] text-slate-400">Remito R-982143 emitido para Carnicería Norte.</p>
+                    <span class="text-[9px] text-slate-500">Hace 1 hora</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <button id="loginBtn" class="mt-4 px-5 py-2.5 rounded-lg bg-navy-900 text-white hover:bg-navy-800 transition" type="button">
-              <i class="fa-solid fa-right-to-bracket mr-2"></i>Ingresar
-            </button>
+            <!-- User Profile Badge (Top Right) -->
+            <div class="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-3 border-l border-slate-800">
+              <div id="userAvatar" class="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-400 to-cyan-500 flex items-center justify-center text-slate-950 font-bold text-xs shadow-md shrink-0">
+                OP
+              </div>
+              <div class="hidden sm:block text-left text-xs">
+                <div class="flex items-center gap-1.5">
+                  <span id="userNameDisplay" class="font-bold text-white">Operador</span>
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981]"></span>
+                </div>
+                <span id="currentRoleBadge" class="text-[10px] text-slate-400 font-medium">Logística</span>
+              </div>
+            </div>
+          </div>
+        </header>
 
-            <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div class="bg-steel-100 rounded-xl p-3 border border-steel-200">
-                <p class="text-xs text-steel-600">Recepciones hoy</p>
-                <p id="kpiRecepciones" class="text-2xl font-bold text-navy-900">0</p>
+        <!-- MAIN DASHBOARD CONTENT AREA -->
+        <main class="p-4 sm:p-8 space-y-6 max-w-7xl">
+          <!-- SCREEN 1: DASHBOARD MAIN SCREEN -->
+          <section id="screen-login" class="screen active space-y-6">
+            <!-- ROW 1: 3 STAT WIDGET CARDS -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <!-- Widget 1: Receptions Today -->
+              <div class="glass-card rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between">
+                <div>
+                  <h3 class="text-sm font-bold text-white tracking-tight">Receptions Today</h3>
+                  <div class="flex items-center gap-6 mt-3">
+                    <div>
+                      <span class="text-[10px] text-slate-400 uppercase font-semibold">Total</span>
+                      <p id="kpiRecepciones" class="text-2xl font-extrabold text-white">42</p>
+                    </div>
+                    <div>
+                      <span class="text-[10px] text-slate-400 uppercase font-semibold">On Time</span>
+                      <p class="text-2xl font-extrabold text-emerald-400">38</p>
+                    </div>
+                    <div>
+                      <span class="text-[10px] text-slate-400 uppercase font-semibold">Delayed</span>
+                      <p class="text-2xl font-extrabold text-rose-400">4</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-end justify-between mt-5 pt-3 border-t border-slate-800/60">
+                  <div class="w-36 h-14">
+                    <span class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Chart</span>
+                    <canvas id="receptionsBarChart" class="w-full h-12"></canvas>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-lg font-extrabold text-sky-400">92%</span>
+                    <p class="text-[10px] text-slate-400 font-medium">performance</p>
+                  </div>
+                </div>
               </div>
-              <div class="bg-steel-100 rounded-xl p-3 border border-steel-200">
-                <p class="text-xs text-steel-600">Lotes próximos a vencer</p>
-                <p id="kpiVencer" class="text-2xl font-bold text-red-600">0</p>
+
+              <!-- Widget 2: Expiration Alerts -->
+              <div class="glass-card rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between" style="background: radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.08) 0%, rgba(18, 26, 41, 0.7) 80%);">
+                <div>
+                  <h3 class="text-sm font-bold text-white tracking-tight">Expiration Alerts</h3>
+                  <div class="flex items-center gap-6 mt-4">
+                    <div>
+                      <span class="text-[10px] text-slate-400 uppercase font-semibold">Total Active</span>
+                      <p id="kpiVencer" class="text-3xl font-extrabold text-white mt-0.5">9</p>
+                    </div>
+                    <div class="pl-4 border-l border-slate-800">
+                      <span class="text-[10px] text-slate-400 uppercase font-semibold">Critical</span>
+                      <p class="text-3xl font-extrabold text-rose-400 mt-0.5">3</p>
+                    </div>
+                    <div class="pl-4 border-l border-slate-800">
+                      <span class="text-[10px] text-slate-400 uppercase font-semibold">Warning</span>
+                      <p class="text-3xl font-extrabold text-amber-400 mt-0.5">6</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-800/60 flex items-center justify-between text-xs text-slate-400">
+                  <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>3 Lotes &lt; 2 Meses</span>
+                  <span class="text-[11px] text-sky-400 font-semibold cursor-pointer">Ver detalle →</span>
+                </div>
               </div>
-              <div class="bg-steel-100 rounded-xl p-3 border border-steel-200">
-                <p class="text-xs text-steel-600">Despachos del día</p>
-                <p id="kpiDespachos" class="text-2xl font-bold text-navy-900">0</p>
+
+              <!-- Widget 3: Dispatch Stats -->
+              <div class="glass-card rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between">
+                <div>
+                  <h3 class="text-sm font-bold text-white tracking-tight">Dispatch Stats</h3>
+                  <div class="flex items-center gap-6 mt-3">
+                    <div>
+                      <span class="text-[10px] text-slate-400 uppercase font-semibold">Total</span>
+                      <p id="kpiDespachos" class="text-2xl font-extrabold text-white">29</p>
+                    </div>
+                    <div>
+                      <span class="text-[10px] text-slate-400 uppercase font-semibold">Completed</span>
+                      <p class="text-2xl font-extrabold text-cyan-400">24</p>
+                    </div>
+                    <div>
+                      <span class="text-[10px] text-slate-400 uppercase font-semibold">Pending</span>
+                      <p class="text-2xl font-extrabold text-amber-400">5</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-end justify-between mt-4 pt-3 border-t border-slate-800/60">
+                  <div class="w-36 h-12">
+                    <span class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Trend Chart</span>
+                    <canvas id="dispatchLineChart" class="w-full h-10"></canvas>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-lg font-extrabold text-cyan-400">85%</span>
+                    <p class="text-[10px] text-slate-400 font-medium">efficiency</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ROW 2: STORAGE OVERVIEW & LIVE ALERTS FEED -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+              <!-- Active Storage Overview Card -->
+              <div class="lg:col-span-7 glass-card rounded-2xl p-5 flex flex-col justify-between">
+                <h3 class="text-sm font-bold text-white tracking-tight mb-4">Active Storage Overview</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
+                  <!-- Chart.js Doughnut Chart -->
+                  <div class="flex items-center gap-4">
+                    <div class="relative w-24 h-24 flex items-center justify-center">
+                      <canvas id="storageDoughnutChart"></canvas>
+                      <div class="absolute text-xs font-extrabold text-sky-400">78%</div>
+                    </div>
+                    <div class="space-y-1 text-xs">
+                      <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span>
+                        <span class="text-slate-300 font-medium">Used 78%</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
+                        <span class="text-slate-400 font-medium">Free 22%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Zone Thermometers -->
+                  <div class="grid grid-cols-3 gap-2">
+                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 text-center">
+                      <span class="text-[10px] text-slate-400 font-medium block">Zone A</span>
+                      <i class="fa-solid fa-temperature-three-quarters text-sky-400 text-sm my-1"></i>
+                      <p class="text-xs font-bold text-sky-400">-18°C</p>
+                    </div>
+                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 text-center">
+                      <span class="text-[10px] text-slate-400 font-medium block">Zone B</span>
+                      <i class="fa-solid fa-temperature-three-quarters text-sky-400 text-sm my-1"></i>
+                      <p class="text-xs font-bold text-sky-400">-20°C</p>
+                    </div>
+                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 text-center">
+                      <span class="text-[10px] text-slate-400 font-medium block">Zone C</span>
+                      <i class="fa-solid fa-temperature-three-quarters text-amber-400 text-sm my-1"></i>
+                      <p class="text-xs font-bold text-amber-400">2°C</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Live Alerts Feed Card -->
+              <div class="lg:col-span-5 glass-card rounded-2xl p-5 flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="text-sm font-bold text-white tracking-tight">Live Alerts Feed</h3>
+                  <i class="fa-solid fa-ellipsis text-slate-500 text-xs"></i>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left text-xs">
+                    <thead class="text-slate-400 text-[10px] uppercase border-b border-slate-800">
+                      <tr>
+                        <th class="pb-2">Time</th>
+                        <th class="pb-2">Product</th>
+                        <th class="pb-2">Zone</th>
+                        <th class="pb-2">Issue</th>
+                        <th class="pb-2 text-right">Status Pill</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/40">
+                      <tr>
+                        <td class="py-2 text-slate-400">FT90123</td>
+                        <td class="py-2 font-medium text-slate-200">Salmon</td>
+                        <td class="py-2 text-slate-400">Zone A</td>
+                        <td class="py-2 text-slate-300">14:30</td>
+                        <td class="py-2 text-right">
+                          <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/40">OK</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="py-2 text-slate-400">FT90124</td>
+                        <td class="py-2 font-medium text-slate-200">DairyCorp</td>
+                        <td class="py-2 text-slate-400">Zone C</td>
+                        <td class="py-2 text-slate-300">Temp Warning</td>
+                        <td class="py-2 text-right">
+                          <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/40">Attention</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="py-2 text-slate-400">FT90125</td>
+                        <td class="py-2 font-medium text-slate-200">FarmFresh</td>
+                        <td class="py-2 text-slate-400">Zone A</td>
+                        <td class="py-2 text-slate-300">Critical</td>
+                        <td class="py-2 text-right">
+                          <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-bold rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/40">Critical</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- ROW 3: RECEPTIONS & STORAGE QUEUE TABLE -->
+            <div class="glass-card rounded-2xl p-6">
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div>
+                  <h3 class="text-base font-bold text-white tracking-tight">Receptions & Storage Queue</h3>
+                  <p class="text-xs text-slate-400">Registro operativo en tiempo real e inventario activo</p>
+                </div>
+              </div>
+
+              <!-- Main Interactive Table -->
+              <div class="overflow-x-auto rounded-xl border border-slate-800/80 bg-slate-950/40">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-900/90 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+                    <tr>
+                      <th class="p-3.5">ID Lote</th>
+                      <th class="p-3.5">Product</th>
+                      <th class="p-3.5">Supplier</th>
+                      <th class="p-3.5">Zone</th>
+                      <th class="p-3.5">Storage Temp</th>
+                      <th class="p-3.5 text-right">ETA / Status Pill</th>
+                    </tr>
+                  </thead>
+                  <tbody id="stockTableBody" class="divide-y divide-slate-800/50"></tbody>
+                </table>
               </div>
             </div>
           </section>
 
-          <section id="screen-recepcion" class="screen glass-card rounded-2xl shadow-xl border border-steel-200 p-4 sm:p-6">
-            <h2 class="text-xl sm:text-2xl font-bold text-navy-900 mb-4 flex items-center gap-2">
-              <i class="fa-solid fa-clipboard-check"></i>Recepción de mercadería (Checklist)
-            </h2>
+          <!-- SCREEN 2: RECEPCCIÓN SCREEN -->
+          <section id="screen-recepcion" class="screen glass-card rounded-2xl p-6 sm:p-8">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                <i class="fa-solid fa-clipboard-check"></i>
+              </div>
+              <div>
+                <h2 class="text-xl font-bold text-white tracking-tight">Recepción de Mercadería (Checklist)</h2>
+                <p class="text-xs text-slate-400">Ingreso de producto y control de parámetros de transporte en frío</p>
+              </div>
+            </div>
 
             <form id="recepcionForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-semibold mb-1" for="proveedor">Proveedor</label>
-                <input id="proveedor" required type="text" class="w-full border border-steel-300 rounded-lg p-2.5" />
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="proveedor">Proveedor</label>
+                <input id="proveedor" required type="text" placeholder="Ej: Frigorífico Sur" class="w-full rounded-xl p-2.5 text-xs" />
               </div>
 
               <div>
-                <label class="block text-sm font-semibold mb-1" for="producto">Producto</label>
-                <input id="producto" required type="text" placeholder="Ej: Cuarto delantero" class="w-full border border-steel-300 rounded-lg p-2.5" />
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="producto">Producto</label>
+                <input id="producto" required type="text" placeholder="Ej: Cuarto delantero" class="w-full rounded-xl p-2.5 text-xs" />
               </div>
 
               <div>
-                <label class="block text-sm font-semibold mb-1" for="peso">Peso total (kg)</label>
-                <input id="peso" required type="number" step="0.1" min="1" class="w-full border border-steel-300 rounded-lg p-2.5" />
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="peso">Peso total (kg)</label>
+                <input id="peso" required type="number" step="0.1" min="1" placeholder="Ej: 450" class="w-full rounded-xl p-2.5 text-xs" />
               </div>
 
               <div>
-                <label class="block text-sm font-semibold mb-1" for="ubicacion">Ubicación en cámara</label>
-                <input id="ubicacion" required type="text" placeholder="Ej: Cámara 2 - Pasillo B" class="w-full border border-steel-300 rounded-lg p-2.5" />
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="ubicacion">Ubicación en cámara</label>
+                <input id="ubicacion" required type="text" placeholder="Ej: Cámara 1 - A3" class="w-full rounded-xl p-2.5 text-xs" />
               </div>
 
               <div>
-                <label class="block text-sm font-semibold mb-1" for="fechaRecepcion">Fecha de recepción</label>
-                <input id="fechaRecepcion" required type="date" class="w-full border border-steel-300 rounded-lg p-2.5" />
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="fechaRecepcion">Fecha de recepción</label>
+                <input id="fechaRecepcion" required type="date" class="w-full rounded-xl p-2.5 text-xs" />
               </div>
 
               <div>
-                <label class="block text-sm font-semibold mb-1" for="fechaVencimiento">Fecha de vencimiento</label>
-                <input id="fechaVencimiento" required type="date" class="w-full border border-steel-300 rounded-lg p-2.5" />
-                <p id="vencimientoHelp" class="text-xs mt-1 text-steel-600">Debe haber al menos 3 meses entre recepción y vencimiento.</p>
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="fechaVencimiento">Fecha de vencimiento</label>
+                <input id="fechaVencimiento" required type="date" class="w-full rounded-xl p-2.5 text-xs" />
+                <p id="vencimientoHelp" class="text-[11px] mt-1 text-slate-400 flex items-center gap-1">
+                  <i class="fa-solid fa-circle-info text-sky-400"></i>Requerido mínimo 3 meses entre recepción y vencimiento.
+                </p>
               </div>
 
               <div>
-                <label class="block text-sm font-semibold mb-1" for="embalaje">Estado de embalaje</label>
-                <select id="embalaje" required class="w-full border border-steel-300 rounded-lg p-2.5">
-                  <option value="">Seleccionar...</option>
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="embalaje">Estado de embalaje</label>
+                <select id="embalaje" required class="w-full rounded-xl p-2.5 text-xs">
+                  <option value="">Seleccionar estado...</option>
                   <option>Óptimo</option>
                   <option>Con daños leves</option>
                   <option>Comprometido</option>
@@ -156,187 +511,248 @@
               </div>
 
               <div>
-                <label class="block text-sm font-semibold mb-1" for="temperaturaCamion">Temperatura de camión</label>
-                <select id="temperaturaCamion" required class="w-full border border-steel-300 rounded-lg p-2.5">
-                  <option value="">Seleccionar...</option>
-                  <option value="-25">-25°C a -20°C</option>
-                  <option value="-19">-19°C a -18°C</option>
-                  <option value="-17">Mayor a -18°C (alerta)</option>
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="temperaturaCamion">Temperatura de camión</label>
+                <select id="temperaturaCamion" required class="w-full rounded-xl p-2.5 text-xs">
+                  <option value="">Seleccionar rango...</option>
+                  <option value="-25">-25°C a -20°C (Óptimo)</option>
+                  <option value="-19">-19°C a -18°C (Aceptable)</option>
+                  <option value="-17">Mayor a -18°C (Alerta de frío)</option>
                 </select>
               </div>
 
-              <div class="md:col-span-2">
-                <p class="text-sm font-semibold mb-2">Checklist de seguridad</p>
+              <div class="md:col-span-2 mt-2">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Checklist de seguridad y calidad</p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <label class="check-item flex items-start gap-2">
-                    <input type="checkbox" id="checkPrecinto" class="mt-1" required />
-                    <span>Precinto de transporte verificado</span>
+                  <label class="check-item flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" id="checkPrecinto" class="rounded accent-sky-500 w-4 h-4" required />
+                    <span class="text-xs font-medium text-slate-200">Precinto verificado</span>
                   </label>
-                  <label class="check-item flex items-start gap-2">
-                    <input type="checkbox" id="checkLimpieza" class="mt-1" required />
-                    <span>Condición higiénica correcta</span>
+                  <label class="check-item flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" id="checkLimpieza" class="rounded accent-sky-500 w-4 h-4" required />
+                    <span class="text-xs font-medium text-slate-200">Higiene en camión</span>
                   </label>
-                  <label class="check-item flex items-start gap-2">
-                    <input type="checkbox" id="checkTermometro" class="mt-1" required />
-                    <span>Temperatura validada con termómetro</span>
+                  <label class="check-item flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" id="checkTermometro" class="rounded accent-sky-500 w-4 h-4" required />
+                    <span class="text-xs font-medium text-slate-200">Temp. validada por termómetro</span>
                   </label>
                 </div>
               </div>
 
-              <div class="md:col-span-2 flex flex-wrap gap-3">
-                <button type="submit" class="px-5 py-2.5 rounded-lg bg-navy-900 text-white hover:bg-navy-800 transition">
-                  <i class="fa-solid fa-floppy-disk mr-2"></i>Registrar recepción
+              <div class="md:col-span-2 flex flex-wrap items-center gap-4 mt-4">
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 font-bold text-xs hover:brightness-110 transition-all duration-200 shadow-lg shadow-sky-500/20 flex items-center gap-2">
+                  <i class="fa-solid fa-floppy-disk"></i>Registrar recepción
                 </button>
-                <span id="recepcionMsg" class="text-sm font-semibold self-center"></span>
+                <span id="recepcionMsg" class="text-xs font-medium"></span>
               </div>
             </form>
           </section>
 
-          <section id="screen-stock" class="screen glass-card rounded-2xl shadow-xl border border-steel-200 p-4 sm:p-6">
-            <h2 class="text-xl sm:text-2xl font-bold text-navy-900 mb-4 flex items-center gap-2">
-              <i class="fa-solid fa-warehouse mr-1"></i>Gestión de stock / inventario
-            </h2>
+          <!-- SCREEN 3: STOCK & INVENTORY SCREEN -->
+          <section id="screen-stock" class="screen glass-card rounded-2xl p-6 sm:p-8">
+            <div class="flex items-center justify-between mb-6">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                  <i class="fa-solid fa-box-archive"></i>
+                </div>
+                <div>
+                  <h2 class="text-xl font-bold text-white tracking-tight">Stock & Storage Management</h2>
+                  <p class="text-xs text-slate-400">Inventario activo y semáforo de vencimiento por lotes</p>
+                </div>
+              </div>
+            </div>
 
-            <div class="overflow-x-auto">
-              <table class="min-w-full border border-steel-300 rounded-lg overflow-hidden">
-                <thead class="bg-navy-900 text-white text-sm">
+            <div class="overflow-x-auto rounded-xl border border-slate-800/80 bg-slate-950/40">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-900/90 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
                   <tr>
-                    <th class="text-left p-3">Producto</th>
-                    <th class="text-left p-3">Proveedor</th>
-                    <th class="text-left p-3">Peso (kg)</th>
-                    <th class="text-left p-3">Vencimiento</th>
-                    <th class="text-left p-3">Ubicación en cámara</th>
-                    <th class="text-left p-3">Estado</th>
+                    <th class="p-3.5">Producto</th>
+                    <th class="p-3.5">Proveedor</th>
+                    <th class="p-3.5">Peso disponible</th>
+                    <th class="p-3.5">Fecha Vencimiento</th>
+                    <th class="p-3.5">Ubicación Cámara</th>
+                    <th class="p-3.5 text-right">Estado / Alerta</th>
                   </tr>
                 </thead>
-                <tbody id="stockTableBody" class="text-sm bg-white"></tbody>
+                <tbody id="stockTableBodyFull" class="divide-y divide-slate-800/50"></tbody>
               </table>
             </div>
-            <p class="text-xs text-steel-600 mt-3">
-              <span class="inline-block w-3 h-3 bg-red-500 rounded-sm mr-1 align-middle"></span>
-              Alerta roja: productos con vencimiento en menos de 2 meses.
-            </p>
           </section>
 
-          <section id="screen-despacho" class="screen glass-card rounded-2xl shadow-xl border border-steel-200 p-4 sm:p-6">
-            <h2 class="text-xl sm:text-2xl font-bold text-navy-900 mb-4 flex items-center gap-2">
-              <i class="fa-solid fa-truck-ramp-box"></i>Venta y despacho
-            </h2>
+          <!-- SCREEN 4: DESPACHO SCREEN -->
+          <section id="screen-despacho" class="screen glass-card rounded-2xl p-6 sm:p-8">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                <i class="fa-solid fa-truck-fast"></i>
+              </div>
+              <div>
+                <h2 class="text-xl font-bold text-white tracking-tight">Venta y Despacho</h2>
+                <p class="text-xs text-slate-400">Salida de mercadería, trazabilidad de lote y emisión de remito</p>
+              </div>
+            </div>
 
             <form id="despachoForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-semibold mb-1" for="cliente">Cliente</label>
-                <input id="cliente" required type="text" placeholder="Ej: Carnicería Norte" class="w-full border border-steel-300 rounded-lg p-2.5" />
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="cliente">Cliente / Destino</label>
+                <input id="cliente" required type="text" placeholder="Ej: Carnicería Norte" class="w-full rounded-xl p-2.5 text-xs" />
               </div>
 
               <div>
-                <label class="block text-sm font-semibold mb-1" for="productoDespacho">Producto</label>
-                <select id="productoDespacho" required class="w-full border border-steel-300 rounded-lg p-2.5"></select>
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="productoDespacho">Producto disponible</label>
+                <select id="productoDespacho" required class="w-full rounded-xl p-2.5 text-xs"></select>
               </div>
 
               <div>
-                <label class="block text-sm font-semibold mb-1" for="pesoDespacho">Peso a despachar (kg)</label>
-                <input id="pesoDespacho" required type="number" min="1" step="0.1" class="w-full border border-steel-300 rounded-lg p-2.5" />
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="pesoDespacho">Peso a despachar (kg)</label>
+                <input id="pesoDespacho" required type="number" min="1" step="0.1" placeholder="Ej: 150" class="w-full rounded-xl p-2.5 text-xs" />
               </div>
 
               <div>
-                <label class="block text-sm font-semibold mb-1" for="codigoLote">Código QR / Lote</label>
-                <input id="codigoLote" required type="text" placeholder="Escanear o ingresar código" class="w-full border border-steel-300 rounded-lg p-2.5" />
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="codigoLote">Código QR / Lote</label>
+                <input id="codigoLote" required type="text" placeholder="Escanear o ingresar lote" class="w-full rounded-xl p-2.5 text-xs" />
               </div>
 
-              <label class="md:col-span-2 check-item flex items-start gap-2">
-                <input id="camionRefrigerado" type="checkbox" class="mt-1" required />
-                <span>Confirmo carga en camión refrigerado y temperatura de salida validada.</span>
-              </label>
+              <div class="md:col-span-2 mt-1">
+                <label class="check-item flex items-center gap-3 cursor-pointer">
+                  <input id="camionRefrigerado" type="checkbox" class="rounded accent-sky-500 w-4 h-4" required />
+                  <span class="text-xs font-medium text-slate-200">Confirmo carga en camión refrigerado con temperatura de salida validada.</span>
+                </label>
+              </div>
 
-              <div class="md:col-span-2 flex flex-wrap gap-3">
-                <button type="submit" class="px-5 py-2.5 rounded-lg bg-navy-900 text-white hover:bg-navy-800 transition">
-                  <i class="fa-solid fa-check mr-2"></i>Confirmar despacho
+              <div class="md:col-span-2 flex flex-wrap items-center gap-4 mt-4">
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 font-bold text-xs hover:brightness-110 transition-all duration-200 shadow-lg shadow-sky-500/20 flex items-center gap-2">
+                  <i class="fa-solid fa-check"></i>Confirmar despacho y generar remito
                 </button>
-                <span id="despachoMsg" class="text-sm font-semibold self-center"></span>
+                <span id="despachoMsg" class="text-xs font-medium"></span>
               </div>
             </form>
           </section>
 
-          <section id="screen-remito" class="screen glass-card rounded-2xl shadow-xl border border-steel-200 p-4 sm:p-6 bg-white">
-            <div class="flex items-center justify-between mb-4 no-print">
-              <h2 class="text-xl sm:text-2xl font-bold text-navy-900 flex items-center gap-2">
-                <i class="fa-solid fa-file-invoice"></i>Generación de remito
-              </h2>
-              <div class="flex gap-2">
-                <button id="printRemitoBtn" type="button" class="px-4 py-2 rounded-lg bg-navy-900 text-white hover:bg-navy-800 transition">
-                  <i class="fa-solid fa-print mr-2"></i>Imprimir
-                </button>
-                <button id="downloadRemitoBtn" type="button" class="px-4 py-2 rounded-lg bg-steel-700 text-white hover:bg-steel-600 transition">
-                  <i class="fa-solid fa-download mr-2"></i>Descargar
-                </button>
-              </div>
-            </div>
-
-            <div id="remitoDocument" class="border border-steel-300 rounded-xl p-4 sm:p-6">
-              <div class="flex justify-between items-start gap-4 border-b border-steel-200 pb-4 mb-4">
+          <!-- SCREEN 5: REMITO SCREEN -->
+          <section id="screen-remito" class="screen glass-card rounded-2xl p-6 sm:p-8">
+            <div class="flex items-center justify-between mb-6 no-print">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                  <i class="fa-solid fa-file-invoice"></i>
+                </div>
                 <div>
-                  <h3 class="text-2xl font-bold text-navy-900">Remito de salida</h3>
-                  <p class="text-sm text-steel-600">FrigoTrack - Cadena de frío controlada</p>
+                  <h2 class="text-xl font-bold text-white tracking-tight">Remito Oficial de Salida</h2>
+                  <p class="text-xs text-slate-400">Documentación oficial de transporte y trazabilidad de frío</p>
                 </div>
-                <div class="text-right text-sm">
-                  <p><span class="font-semibold">N°:</span> <span id="remitoNumero">-</span></p>
-                  <p><span class="font-semibold">Fecha:</span> <span id="remitoFecha">-</span></p>
+              </div>
+              <div class="flex gap-2">
+                <button id="printRemitoBtn" type="button" class="px-4 py-2 rounded-xl bg-sky-500/15 text-sky-400 hover:bg-sky-500/25 border border-sky-500/30 text-xs font-semibold transition flex items-center gap-2">
+                  <i class="fa-solid fa-print"></i>Imprimir
+                </button>
+                <button id="downloadRemitoBtn" type="button" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 text-xs font-semibold transition flex items-center gap-2">
+                  <i class="fa-solid fa-download"></i>Descargar TXT
+                </button>
+              </div>
+            </div>
+
+            <div id="remitoDocument" class="bg-slate-950/80 border border-slate-800 rounded-xl p-6 shadow-2xl">
+              <div class="flex justify-between items-start border-b border-slate-800 pb-5 mb-5">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-snowflake text-sky-400 text-lg"></i>
+                    <h3 class="text-xl font-extrabold text-white">REMITO DE SALIDA</h3>
+                  </div>
+                  <p class="text-xs text-slate-400 mt-0.5">FrigoTrack Logística - Cadena de Frío Controlada</p>
+                </div>
+                <div class="text-right text-xs">
+                  <p class="text-slate-400">N° Remito: <span id="remitoNumero" class="font-bold text-sky-400">-</span></p>
+                  <p class="text-slate-400">Fecha: <span id="remitoFecha" class="font-semibold text-slate-200">-</span></p>
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                <p><span class="font-semibold">Cliente:</span> <span id="remitoCliente">-</span></p>
-                <p><span class="font-semibold">Producto:</span> <span id="remitoProducto">-</span></p>
-                <p><span class="font-semibold">Peso:</span> <span id="remitoPeso">-</span></p>
-                <p><span class="font-semibold">Código QR/Lote:</span> <span id="remitoLote">-</span></p>
-                <p class="md:col-span-2"><span class="font-semibold">Confirmación salida:</span> <span id="remitoSalida">-</span></p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+                  <span class="text-slate-400 block text-[10px] uppercase font-bold">Cliente / Destino</span>
+                  <span id="remitoCliente" class="font-semibold text-slate-100 text-sm">-</span>
+                </div>
+                <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+                  <span class="text-slate-400 block text-[10px] uppercase font-bold">Producto Despachado</span>
+                  <span id="remitoProducto" class="font-semibold text-slate-100 text-sm">-</span>
+                </div>
+                <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+                  <span class="text-slate-400 block text-[10px] uppercase font-bold">Peso Total</span>
+                  <span id="remitoPeso" class="font-semibold text-sky-400 text-sm">-</span>
+                </div>
+                <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+                  <span class="text-slate-400 block text-[10px] uppercase font-bold">Código QR / Lote</span>
+                  <span id="remitoLote" class="font-semibold text-slate-100 text-sm">-</span>
+                </div>
+                <div class="md:col-span-2 bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+                  <span class="text-slate-400 block text-[10px] uppercase font-bold">Validación de Salida</span>
+                  <span id="remitoSalida" class="font-medium text-emerald-400">-</span>
+                </div>
               </div>
             </div>
           </section>
 
-          <section id="screen-perdidas" class="screen glass-card rounded-2xl shadow-xl border border-steel-200 p-4 sm:p-6">
-            <h2 class="text-xl sm:text-2xl font-bold text-navy-900 mb-4 flex items-center gap-2">
-              <i class="fa-solid fa-triangle-exclamation"></i>Reporte de pérdidas / devoluciones
-            </h2>
-
-            <form id="perdidasForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div>
-                <label class="block text-sm font-semibold mb-1" for="causaPerdida">Causa</label>
-                <select id="causaPerdida" required class="w-full border border-steel-300 rounded-lg p-2.5">
-                  <option value="">Seleccionar...</option>
-                  <option>Pérdida de frío</option>
-                  <option>Vencimiento</option>
-                  <option>Daño de embalaje</option>
-                  <option>Devolución cliente</option>
-                </select>
+          <!-- SCREEN 6: PÉRDIDAS SCREEN -->
+          <section id="screen-perdidas" class="screen glass-card rounded-2xl p-6 sm:p-8">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                <i class="fa-solid fa-triangle-exclamation"></i>
               </div>
               <div>
-                <label class="block text-sm font-semibold mb-1" for="fechaPerdida">Fecha</label>
-                <input id="fechaPerdida" required type="date" class="w-full border border-steel-300 rounded-lg p-2.5" />
+                <h2 class="text-xl font-bold text-white tracking-tight">Registro de Pérdidas y Devoluciones</h2>
+                <p class="text-xs text-slate-400">Control de mermas, rupturas de cadena de frío y devoluciones</p>
               </div>
-              <div>
-                <label class="block text-sm font-semibold mb-1" for="detallePerdida">Detalle</label>
-                <input id="detallePerdida" type="text" placeholder="Observación breve" class="w-full border border-steel-300 rounded-lg p-2.5" />
-              </div>
+            </div>
 
-              <div class="md:col-span-3">
-                <button type="submit" class="px-5 py-2.5 rounded-lg bg-navy-900 text-white hover:bg-navy-800 transition">
-                  <i class="fa-solid fa-plus mr-2"></i>Registrar merma
-                </button>
-              </div>
-            </form>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+              <form id="perdidasForm" class="lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-3">
+                  <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Nuevo Registro de Merma</h3>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="causaPerdida">Causa del incidente</label>
+                  <select id="causaPerdida" required class="w-full rounded-xl p-2.5 text-xs">
+                    <option value="">Seleccionar causa...</option>
+                    <option>Pérdida de frío</option>
+                    <option>Vencimiento</option>
+                    <option>Daño de embalaje</option>
+                    <option>Devolución cliente</option>
+                  </select>
+                </div>
 
-            <div class="overflow-x-auto">
-              <table class="min-w-full border border-steel-300 rounded-lg overflow-hidden">
-                <thead class="bg-steel-700 text-white text-sm">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="fechaPerdida">Fecha</label>
+                  <input id="fechaPerdida" required type="date" class="w-full rounded-xl p-2.5 text-xs" />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="detallePerdida">Observaciones / Detalle</label>
+                  <input id="detallePerdida" type="text" placeholder="Breve observación" class="w-full rounded-xl p-2.5 text-xs" />
+                </div>
+
+                <div class="md:col-span-3">
+                  <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 text-white font-bold text-xs hover:brightness-110 transition-all duration-200 shadow-lg shadow-rose-500/20 flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i>Registrar merma o devolución
+                  </button>
+                </div>
+              </form>
+
+              <!-- Chart.js Mermas Breakdown Chart -->
+              <div class="lg:col-span-4 bg-slate-900/60 p-4 rounded-2xl border border-slate-800 flex flex-col items-center justify-center">
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Distribución de Mermas</span>
+                <div class="w-36 h-36 relative flex items-center justify-center">
+                  <canvas id="mermasChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-xl border border-slate-800/80 bg-slate-950/40">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-900/90 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
                   <tr>
-                    <th class="text-left p-3">Fecha</th>
-                    <th class="text-left p-3">Causa</th>
-                    <th class="text-left p-3">Detalle</th>
+                    <th class="p-3.5">Fecha</th>
+                    <th class="p-3.5">Causa de pérdida</th>
+                    <th class="p-3.5">Detalle u Observación</th>
                   </tr>
                 </thead>
-                <tbody id="perdidasBody" class="bg-white text-sm"></tbody>
+                <tbody id="perdidasBody" class="divide-y divide-slate-800/50"></tbody>
               </table>
             </div>
           </section>
@@ -345,3 +761,6 @@
     </div>
   </body>
 </html>
+
+
+

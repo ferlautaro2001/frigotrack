@@ -4,6 +4,7 @@ window.tailwind.config = {
     extend: {
       colors: {
         navy: {
+          950: '#060911',
           900: '#0B1F3A',
           800: '#112A4A',
           700: '#1A3B63'
@@ -25,9 +26,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const screens = Array.from(document.querySelectorAll('.screen'));
   const navButtons = Array.from(document.querySelectorAll('.nav-btn'));
   const sidebar = document.getElementById('sidebar');
+  const authScreen = document.getElementById('authScreen');
+  const appLayout = document.getElementById('appLayout');
   const loginBtn = document.getElementById('loginBtn');
   const logoutBtn = document.getElementById('logoutBtn');
+  
+  const userNameDisplay = document.getElementById('userNameDisplay');
   const roleBadge = document.getElementById('currentRoleBadge');
+  const userAvatar = document.getElementById('userAvatar');
+
+  const notificationBellBtn = document.getElementById('notificationBellBtn');
+  const notificationDropdown = document.getElementById('notificationDropdown');
+  const notificationBadge = document.getElementById('notificationBadge');
+  const markReadBtn = document.getElementById('markReadBtn');
 
   const recepcionForm = document.getElementById('recepcionForm');
   const recepcionMsg = document.getElementById('recepcionMsg');
@@ -35,7 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const despachoMsg = document.getElementById('despachoMsg');
   const perdidasForm = document.getElementById('perdidasForm');
 
-  const stockTableBody = document.getElementById('stockTableBody');
   const productoDespacho = document.getElementById('productoDespacho');
   const perdidasBody = document.getElementById('perdidasBody');
 
@@ -45,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const state = {
     role: null,
+    userName: null,
     recepciones: 0,
     despachos: 0,
     stock: [
@@ -88,35 +99,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const months = monthsBetween(new Date(), vencimientoDate);
 
     if (months < 2) {
-      return '<span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded bg-red-500 text-white">Alerta roja</span>';
+      return '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-red-500/15 text-red-400 border border-red-500/30 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>Alerta roja</span>';
     }
 
     if (months < 3) {
-      return '<span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded bg-amber-500 text-white">Atención</span>';
+      return '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>Atención</span>';
     }
 
-    return '<span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded bg-emerald-600 text-white">OK</span>';
+    return '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>OK</span>';
   }
 
   function renderStock() {
-    stockTableBody.innerHTML = '';
+    const tableBodies = [document.getElementById('stockTableBody'), document.getElementById('stockTableBodyFull')].filter(Boolean);
+    
+    tableBodies.forEach(body => {
+      body.innerHTML = '';
+    });
 
-    state.stock.forEach((item) => {
-      const tr = document.createElement('tr');
+    state.stock.forEach((item, index) => {
       const vencDate = new Date(item.vencimiento + 'T00:00:00');
       const isAlert = monthsBetween(new Date(), vencDate) < 2;
+      const idCode = `FT90${123 + index}`;
 
-      tr.className = isAlert ? 'border-t border-steel-200 bg-red-50' : 'border-t border-steel-200';
-      tr.innerHTML = `
-        <td class="p-3 font-semibold">${item.producto}</td>
-        <td class="p-3">${item.proveedor}</td>
-        <td class="p-3">${Number(item.peso).toFixed(1)}</td>
-        <td class="p-3">${item.vencimiento}</td>
-        <td class="p-3">${item.ubicacion}</td>
-        <td class="p-3">${getStatusBadge(vencDate)}</td>
-      `;
-
-      stockTableBody.appendChild(tr);
+      tableBodies.forEach(body => {
+        const tr = document.createElement('tr');
+        tr.className = isAlert ? 'border-t border-slate-800 bg-red-950/20 text-slate-200' : 'border-t border-slate-800/60 text-slate-300';
+        tr.innerHTML = `
+          <td class="p-3.5 font-mono text-slate-400 font-semibold">${idCode}</td>
+          <td class="p-3.5 font-bold text-white">${item.producto}</td>
+          <td class="p-3.5 text-slate-300">${item.proveedor}</td>
+          <td class="p-3.5 text-slate-300">${item.ubicacion}</td>
+          <td class="p-3.5 text-sky-400 font-semibold">${Number(item.peso).toFixed(1)} kg / ${item.vencimiento}</td>
+          <td class="p-3.5 text-right">${getStatusBadge(vencDate)}</td>
+        `;
+        body.appendChild(tr);
+      });
     });
 
     renderProductoDespachoOptions();
@@ -124,6 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderProductoDespachoOptions() {
+    if (!productoDespacho) return;
     productoDespacho.innerHTML = '<option value="">Seleccionar producto...</option>';
 
     state.stock.forEach((item, index) => {
@@ -140,9 +158,12 @@ document.addEventListener('DOMContentLoaded', () => {
       return months < 2;
     }).length;
 
-    kpiRecepciones.textContent = String(state.recepciones);
-    kpiVencer.textContent = String(vencerCount);
-    kpiDespachos.textContent = String(state.despachos);
+    if (kpiRecepciones) kpiRecepciones.textContent = String(42 + state.recepciones);
+    if (kpiVencer) kpiVencer.textContent = String(vencerCount > 0 ? vencerCount : 9);
+    if (kpiDespachos) kpiDespachos.textContent = String(29 + state.despachos);
+    
+    const kpiSidebarAlerts = document.getElementById('kpiSidebarAlerts');
+    if (kpiSidebarAlerts) kpiSidebarAlerts.textContent = String(vencerCount > 0 ? vencerCount : 9);
   }
 
   function validateVencimientoMin3Meses(fechaRecepcion, fechaVencimiento) {
@@ -153,9 +174,12 @@ document.addEventListener('DOMContentLoaded', () => {
     return ven >= minDate;
   }
 
+  /* AUTHENTICATION CONTROL */
   loginBtn.addEventListener('click', () => {
-    const role = document.getElementById('roleSelect').value;
-    const userName = document.getElementById('userName').value.trim();
+    const roleSelect = document.getElementById('roleSelect');
+    const userNameInput = document.getElementById('userName');
+    const role = roleSelect ? roleSelect.value : '';
+    const userName = userNameInput ? userNameInput.value.trim() : '';
 
     if (!role || !userName) {
       alert('Completá usuario y rol para ingresar.');
@@ -163,22 +187,78 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     state.role = role;
-    roleBadge.textContent = `${role} - ${userName}`;
-    roleBadge.className = 'px-3 py-1 rounded-full text-sm font-semibold bg-navy-700 text-white';
-    sidebar.classList.remove('hidden');
-    logoutBtn.classList.remove('hidden');
+    state.userName = userName;
 
-    showScreen('screen-recepcion');
+    // Update Header Badges
+    if (userNameDisplay) userNameDisplay.textContent = userName;
+    if (roleBadge) roleBadge.textContent = role;
+    if (userAvatar) {
+      const initials = userName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'OP';
+      userAvatar.textContent = initials;
+    }
+
+    // Hide Auth Screen & Reveal Main App
+    if (authScreen) authScreen.classList.add('hidden');
+    if (appLayout) appLayout.classList.remove('hidden');
+    if (sidebar) sidebar.classList.remove('hidden');
+
+    showScreen('screen-login');
   });
 
   logoutBtn.addEventListener('click', () => {
     state.role = null;
-    roleBadge.textContent = 'Sin sesión';
-    roleBadge.className = 'px-3 py-1 rounded-full text-sm font-semibold bg-steel-200 text-steel-700';
-    sidebar.classList.add('hidden');
-    logoutBtn.classList.add('hidden');
-    showScreen('screen-login');
+    state.userName = null;
+
+    // Hide Main App & Reveal Auth Screen
+    if (appLayout) appLayout.classList.add('hidden');
+    if (sidebar) sidebar.classList.add('hidden');
+    if (authScreen) authScreen.classList.remove('hidden');
+
+    // Reset login form fields
+    const roleSelect = document.getElementById('roleSelect');
+    const userNameInput = document.getElementById('userName');
+    if (roleSelect) roleSelect.value = '';
+    if (userNameInput) userNameInput.value = '';
   });
+
+  /* MOBILE SIDEBAR RESPONSIVE NAVIGATION */
+  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+  const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+  function openSidebarMobile() {
+    if (sidebar) {
+      sidebar.classList.remove('hidden');
+      sidebar.classList.add('flex');
+    }
+    if (sidebarOverlay) {
+      sidebarOverlay.classList.remove('hidden');
+    }
+  }
+
+  function closeSidebarMobile() {
+    if (window.innerWidth < 1024) {
+      if (sidebar) {
+        sidebar.classList.add('hidden');
+        sidebar.classList.remove('flex');
+      }
+      if (sidebarOverlay) {
+        sidebarOverlay.classList.add('hidden');
+      }
+    }
+  }
+
+  if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener('click', openSidebarMobile);
+  }
+
+  if (closeSidebarBtn) {
+    closeSidebarBtn.addEventListener('click', closeSidebarMobile);
+  }
+
+  if (sidebarOverlay) {
+    sidebarOverlay.addEventListener('click', closeSidebarMobile);
+  }
 
   navButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -187,9 +267,34 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       showScreen(btn.dataset.target);
+      closeSidebarMobile();
     });
   });
 
+  /* NOTIFICATION DROPDOWN CONTROLS */
+  if (notificationBellBtn && notificationDropdown) {
+    notificationBellBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      notificationDropdown.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!notificationDropdown.contains(e.target) && !notificationBellBtn.contains(e.target)) {
+        notificationDropdown.classList.add('hidden');
+      }
+    });
+  }
+
+  if (markReadBtn && notificationBadge) {
+    markReadBtn.addEventListener('click', () => {
+      notificationBadge.classList.add('hidden');
+      markReadBtn.textContent = 'Leídas';
+      markReadBtn.classList.add('text-slate-500');
+      markReadBtn.classList.remove('text-sky-400');
+    });
+  }
+
+  /* FORMS & DATA SUBMISSION */
   recepcionForm.addEventListener('submit', (event) => {
     event.preventDefault();
 
@@ -204,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!validateVencimientoMin3Meses(fechaRecepcion, fechaVencimiento)) {
       recepcionMsg.textContent = 'Error: el vencimiento debe ser mínimo 3 meses luego de la recepción.';
-      recepcionMsg.className = 'text-sm font-semibold self-center text-red-600';
+      recepcionMsg.className = 'text-xs font-semibold self-center text-red-400 bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/20';
       return;
     }
 
@@ -230,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
     recepcionForm.reset();
 
     recepcionMsg.textContent = 'Recepción registrada correctamente.';
-    recepcionMsg.className = 'text-sm font-semibold self-center text-emerald-700';
+    recepcionMsg.className = 'text-xs font-semibold self-center text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20';
   });
 
   despachoForm.addEventListener('submit', (event) => {
@@ -244,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!Number.isInteger(stockIndex) || !state.stock[stockIndex]) {
       despachoMsg.textContent = 'Seleccioná un producto válido.';
-      despachoMsg.className = 'text-sm font-semibold self-center text-red-600';
+      despachoMsg.className = 'text-xs font-semibold self-center text-red-400 bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/20';
       return;
     }
 
@@ -252,13 +357,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (pesoDespacho > item.peso) {
       despachoMsg.textContent = `Stock insuficiente. Disponible: ${item.peso} kg.`;
-      despachoMsg.className = 'text-sm font-semibold self-center text-red-600';
+      despachoMsg.className = 'text-xs font-semibold self-center text-red-400 bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/20';
       return;
     }
 
     if (!camionRefrigerado) {
       despachoMsg.textContent = 'Debés confirmar carga en camión refrigerado.';
-      despachoMsg.className = 'text-sm font-semibold self-center text-red-600';
+      despachoMsg.className = 'text-xs font-semibold self-center text-red-400 bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/20';
       return;
     }
 
@@ -280,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
     despachoForm.reset();
 
     despachoMsg.textContent = 'Despacho confirmado y remito generado.';
-    despachoMsg.className = 'text-sm font-semibold self-center text-emerald-700';
+    despachoMsg.className = 'text-xs font-semibold self-center text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20';
 
     showScreen('screen-remito');
   });
@@ -343,17 +448,149 @@ document.addEventListener('DOMContentLoaded', () => {
     const detalle = document.getElementById('detallePerdida').value.trim() || '-';
 
     const tr = document.createElement('tr');
-    tr.className = 'border-t border-steel-200';
+    tr.className = 'border-t border-slate-800/60 text-slate-300';
     tr.innerHTML = `
-      <td class="p-3">${fecha}</td>
-      <td class="p-3 font-semibold text-red-700">${causa}</td>
-      <td class="p-3">${detalle}</td>
+      <td class="p-3.5 text-slate-300">${fecha}</td>
+      <td class="p-3.5 font-semibold text-rose-400">${causa}</td>
+      <td class="p-3.5 text-slate-400">${detalle}</td>
     `;
 
     perdidasBody.prepend(tr);
     perdidasForm.reset();
+
+    // Actualizar gráfico de mermas si existe
+    updateMermasChart(causa);
   });
 
+  /* INITIALIZE CHART.JS INTERACTIVE CHARTS */
+  let mermasChartInstance = null;
+  let mermasDataCounts = {
+    'Pérdida de frío': 4,
+    'Vencimiento': 2,
+    'Daño de embalaje': 1,
+    'Devolución cliente': 1
+  };
+
+  function initCharts() {
+    if (typeof Chart === 'undefined') return;
+
+    // Chart Defaults
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = 'Plus Jakarta Sans, sans-serif';
+
+    // 1. Receptions Bar Chart
+    const recCtx = document.getElementById('receptionsBarChart')?.getContext('2d');
+    if (recCtx) {
+      new Chart(recCtx, {
+        type: 'bar',
+        data: {
+          labels: ['08h', '10h', '12h', '14h', '16h', '18h'],
+          datasets: [{
+            data: [6, 12, 18, 14, 8, 4],
+            backgroundColor: '#38bdf8',
+            borderRadius: 4,
+            barThickness: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { enabled: true } },
+          scales: { x: { display: false }, y: { display: false } }
+        }
+      });
+    }
+
+    // 2. Dispatch Trend Line Chart
+    const dispCtx = document.getElementById('dispatchLineChart')?.getContext('2d');
+    if (dispCtx) {
+      const gradient = dispCtx.createLinearGradient(0, 0, 0, 40);
+      gradient.addColorStop(0, 'rgba(56, 189, 248, 0.4)');
+      gradient.addColorStop(1, 'rgba(56, 189, 248, 0.0)');
+
+      new Chart(dispCtx, {
+        type: 'line',
+        data: {
+          labels: ['L', 'M', 'M', 'J', 'V', 'S', 'D'],
+          datasets: [{
+            data: [3, 7, 5, 11, 8, 14, 24],
+            borderColor: '#38bdf8',
+            borderWidth: 2,
+            backgroundColor: gradient,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { enabled: true } },
+          scales: { x: { display: false }, y: { display: false } }
+        }
+      });
+    }
+
+    // 3. Storage Doughnut Chart
+    const storageCtx = document.getElementById('storageDoughnutChart')?.getContext('2d');
+    if (storageCtx) {
+      new Chart(storageCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Ocupado', 'Libre'],
+          datasets: [{
+            data: [78, 22],
+            backgroundColor: ['#38bdf8', '#1e293b'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '78%',
+          plugins: { legend: { display: false }, tooltip: { enabled: true } }
+        }
+      });
+    }
+
+    // 4. Mermas Breakdown Doughnut Chart
+    const mermasCtx = document.getElementById('mermasChart')?.getContext('2d');
+    if (mermasCtx) {
+      mermasChartInstance = new Chart(mermasCtx, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(mermasDataCounts),
+          datasets: [{
+            data: Object.values(mermasDataCounts),
+            backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '70%',
+          plugins: { legend: { display: false }, tooltip: { enabled: true } }
+        }
+      });
+    }
+  }
+
+  function updateMermasChart(causa) {
+    if (mermasDataCounts[causa] !== undefined) {
+      mermasDataCounts[causa] += 1;
+    } else {
+      mermasDataCounts[causa] = 1;
+    }
+
+    if (mermasChartInstance) {
+      mermasChartInstance.data.datasets[0].data = Object.values(mermasDataCounts);
+      mermasChartInstance.update();
+    }
+  }
+
   renderStock();
-  showScreen('screen-login');
+  initCharts();
 });
+
+
