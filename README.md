@@ -24,14 +24,14 @@
   <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black" alt="javascript"/>
   <img src="https://img.shields.io/badge/Chart.js-FF6384?style=flat-square&logo=chartdotjs&logoColor=white" alt="chartjs"/>
   <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="tailwindcss"/>
-  <img src="https://img.shields.io/badge/Font_Awesome-528DD7?style=flat-square&logo=fontawesome&logoColor=white" alt="fontawesome"/>
+  <img src="https://img.shields.io/badge/Lucide-5745D6?style=flat-square&logo=lucide&logoColor=white" alt="lucide"/>
 </p>
 
 * JavaScript vanilla (ES6+, sin frameworks ni build step)
-* [Chart.js](https://www.chartjs.org/) (v4.x) vía CDN para gráficos vectoriales interactivos (barras, líneas de tendencia y donas)
+* [Chart.js](https://www.chartjs.org/) (v4.x) vía CDN para el gráfico de temperatura por cámara
 * [Tailwind CSS](https://tailwindcss.com/) (v3.x) vía CDN para utilidades de maquetación y diseño responsive
-* [Font Awesome](https://fontawesome.com/) (v6.5.2) vía CDN para iconografía de navegación y acciones
-* Google Fonts (`Plus Jakarta Sans`) para jerarquía tipográfica moderna en modo tema oscuro (*Dark Theme*)
+* Iconografía [Lucide](https://lucide.dev/) embebida como sprite SVG en línea (trazo 1.5, 16 px), sin dependencias de fuentes de iconos
+* Google Fonts (`Geist` + `Geist Mono`) para la interfaz y las cifras/lecturas de temperatura en modo tema oscuro (*Dark Theme*)
 
 ---
 
@@ -45,16 +45,17 @@
 
 ## 📑 Tabla de Contenidos
 1. [Visión del Producto y Justificación del Negocio](#1-visión-del-producto-y-justificación-del-negocio)
-2. [Definición Sistémica (Teoría General de Sistemas - TGS)](#2-definición-sistémica-teoría-general-de-sistemas---tgs)
-3. [Las 4 P del Desarrollo de Software](#3-las-4-p-del-desarrollo-de-software)
-4. [Especificación de Requerimientos](#4-especificación-de-requerimientos)
-5. [Casos de Uso del Proceso Unificado (RUP/UP)](#5-casos-de-uso-del-proceso-unificado-rupup)
-6. [Gestión Ágil: Épicas, Features e Historias de Usuario](#6-gestión-ágil-épicas-features-e-historias-de-usuario)
-7. [Diseño Orientado a Objetos y Modelado UML](#7-diseño-orientado-a-objetos-y-modelado-uml)
-8. [Estrategia de Testing y Control de Calidad (QA/QC)](#8-estrategia-de-testing-y-control-de-calidad-qaqc)
-9. [Cultura DevOps, Docker y Despliegue en la Nube](#9-cultura-devops-docker-y-despliegue-en-la-nube)
-10. [Instalación y Puesta en Marcha](#10-instalación-y-puesta-en-marcha)
-11. [Gobernanza del Proyecto y Matriz RACI](#11-gobernanza-del-proyecto-y-matriz-raci)
+2. [Dominio: Lenguaje Ubicuo](#2-dominio-lenguaje-ubicuo)
+3. [Definición Sistémica (Teoría General de Sistemas - TGS)](#3-definición-sistémica-teoría-general-de-sistemas---tgs)
+4. [Las 4 P del Desarrollo de Software](#4-las-4-p-del-desarrollo-de-software)
+5. [Especificación de Requerimientos](#5-especificación-de-requerimientos)
+6. [Casos de Uso del Proceso Unificado (RUP/UP)](#6-casos-de-uso-del-proceso-unificado-rupup)
+7. [Gestión Ágil: Épicas, Features e Historias de Usuario](#7-gestión-ágil-épicas-features-e-historias-de-usuario)
+8. [Diseño Orientado a Objetos y Modelado UML](#8-diseño-orientado-a-objetos-y-modelado-uml)
+9. [Estrategia de Testing y Control de Calidad (QA/QC)](#9-estrategia-de-testing-y-control-de-calidad-qaqc)
+10. [Cultura DevOps, Docker y Despliegue en la Nube](#10-cultura-devops-docker-y-despliegue-en-la-nube)
+11. [Instalación y Puesta en Marcha](#11-instalación-y-puesta-en-marcha)
+12. [Gobernanza del Proyecto y Matriz RACI](#12-gobernanza-del-proyecto-y-matriz-raci)
 
 ---
 
@@ -76,7 +77,28 @@ En la industria frigorífica y de distribución cárnica mayorista, la preservac
 
 ---
 
-## 2. Definición Sistémica (Teoría General de Sistemas - TGS)
+## 2. Dominio: Lenguaje Ubicuo
+
+En concordancia con los principios del **Diseño Guiado por el Dominio (DDD - Domain-Driven Design)**, se establece el siguiente glosario de términos clave para garantizar una terminología unívoca, rigurosa y compartida entre los desarrolladores, los analistas funcionales y los operadores de planta frigorífica:
+
+| Concepto | Definición |
+| :--- | :--- |
+| **Cadena de Frío** | Conjunto ininterrumpido de procesos logísticos y térmicos que aseguran que los cortes cárnicos se mantengan constantemente a temperaturas reglamentarias ($\le -18\,^\circ\text{C}$ para congelados) desde la faena hasta la entrega al cliente final. |
+| **Excursión Térmica** | Evento anómalo en el cual la temperatura de una cámara o unidad de transporte supera el umbral límite admisible ($-18\,^\circ\text{C}$), poniendo en riesgo la estabilidad microbiológica del lote y disparando alertas preventivas o bloqueos sanitarios. |
+| **SENASA** | Servicio Nacional de Sanidad y Calidad Agroalimentaria (Argentina). Ente fiscalizador oficial que reglamenta las condiciones higiénico-sanitarias, la rotulación, el transporte y las temperaturas obligatorias para productos cárnicos de consumo interno y exportación. |
+| **Lote Cárnico (`FT90XXX`)** | Unidad atómica de inventario y trazabilidad que agrupa un corte específico recibido en una fecha determinada, con peso neto en kilogramos, proveedor de origen, fecha de vencimiento y cámara asignada. |
+| **Remito Oficial** | Documento mercantil y legal de amparo de tránsito (`R-XXXXXX`) que certifica la salida física de mercadería de la planta, registrando el cliente receptor, código de lote, kilogramos netos despachados y la validación de transporte refrigerado. |
+| **Factura** | Documento contable, impositivo y fiscal de cobro (AFIP/ARCA) que acredita la transacción comercial y el valor monetario de la venta. En FrigoTrack se encuentra expresamente catalogada como **Out-of-Scope (Fase Futura)**, desacoplándose operativamente del remito logístico. |
+| **Merma** | Pérdida de inventario no atribuible al despacho comercial. Representa mercadería descartada o inutilizable tipificada por causas formales: *Pérdida de frío*, *Vencimiento*, *Daño de embalaje* o *Devolución de cliente*. |
+| **Semáforo de Vencimiento** | Algoritmo automatizado de categorización visual que clasifica los lotes en tres niveles de prioridad logística según los días/meses restantes para su caducidad: *Alerta roja* ($< 2$ meses), *Atención* ($< 3$ meses) y *OK* ($\ge 3$ meses). |
+| **PEPS / FIFO** | Regla operativa de almacenamiento y rotación (*Primero Entrado, Primero Salido* / *First-In, First-Out*), que prioriza el despacho de los lotes más próximos a vencer para prevenir pérdidas biológicas y económicas. |
+| **Descuento Atómico** | Operación transaccional sobre el inventario que deduce con precisión decimal los kilogramos solicitados en un despacho garantizando que nunca se produzcan inconsistencias de stock negativo ni sobreventas. |
+| **Checklist de Muelle** | Procedimiento de control físico obligatorio previo a la descarga de un camión en muelle, que valida el precinto sanitario oficial, la higiene de la unidad y la lectura contrastada de temperatura por termómetro punzón. |
+| **Cámara Frigorífica** | Espacio físico aislado térmicamente en planta, subdividido en sectores de estiba (ej. `Cámara 1 · Sector A`), con control telemétrico continuo de temperatura y capacidad de estiba medida en kilogramos. |
+
+---
+
+## 3. Definición Sistémica (Teoría General de Sistemas - TGS)
 
 Siguiendo los principios de **Ludwig von Bertalanffy**, FrigoTrack se concibe como un **Sistema de Información Abierto y Dinámico**, compuesto por subsistemas interrelacionados que interactúan con su entorno:
 
@@ -132,7 +154,7 @@ graph LR
 
 ---
 
-## 3. Las 4 P del Desarrollo de Software
+## 4. Las 4 P del Desarrollo de Software
 
 ```mermaid
 mindmap
@@ -184,7 +206,7 @@ mindmap
 
 ---
 
-## 4. Especificación de Requerimientos
+## 5. Especificación de Requerimientos
 
 ### 4.1. Requerimientos Funcionales (RF)
 | ID | Nombre | Descripción | Prioridad |
@@ -208,7 +230,7 @@ mindmap
 
 ---
 
-## 5. Casos de Uso del Proceso Unificado (RUP/UP)
+## 6. Casos de Uso del Proceso Unificado (RUP/UP)
 
 ### 5.1. Diagrama General de Casos de Uso (UML)
 
@@ -300,7 +322,7 @@ Flujos de Excepción:
 
 ---
 
-## 6. Gestión Ágil: Épicas, Features e Historias de Usuario
+## 7. Gestión Ágil: Épicas, Features e Historias de Usuario
 
 ### 6.1. Jerarquía de Descomposición
 
@@ -342,7 +364,7 @@ graph TD
 
 ---
 
-## 7. Diseño Orientado a Objetos y Modelado UML
+## 8. Diseño Orientado a Objetos y Modelado UML
 
 ### 7.1. Diagrama de Clases del Dominio (UML)
 
@@ -460,7 +482,7 @@ sequenceDiagram
 
 ---
 
-## 8. Estrategia de Testing y Control de Calidad (QA/QC)
+## 9. Estrategia de Testing y Control de Calidad (QA/QC)
 
 El plan de aseguramiento de calidad de FrigoTrack implementa estrategias de **Shift-Left** (pruebas unitarias automatizadas) y **Shift-Right** (telemetría en producción y pruebas de humo).
 
@@ -495,9 +517,9 @@ npm run test:coverage
 
 ---
 
-## 9. Cultura DevOps, Docker y Despliegue en la Nube
+## 10. Cultura DevOps, Docker y Despliegue en la Nube
 
-### 9.1. Pipeline de Integración Continua (`.github/workflows/ci.yml`)
+### 10.1. Pipeline de Integración Continua (`.github/workflows/ci.yml`)
 En cada *Push* o *Pull Request* hacia la rama principal, GitHub Actions ejecuta el pipeline automatizado:
 1. **Linter & Syntax Check**: Validación de formato y buenas prácticas.
 2. **Automated Testing**: Ejecución de las suites unitarias y de integración.
@@ -505,7 +527,7 @@ En cada *Push* o *Pull Request* hacia la rama principal, GitHub Actions ejecuta 
 
 ---
 
-### 9.2. Infraestructura Inmutable con Docker
+### 10.2. Infraestructura Inmutable con Docker
 
 #### `Dockerfile`:
 ```dockerfile
@@ -533,19 +555,19 @@ services:
 
 ---
 
-### 9.3. Justificación de Topología Cloud
+### 10.3. Justificación de Topología Cloud
 * **Modelo**: Despliegue en **PaaS** (plataformas de contenedores como AWS App Runner, Azure Container Apps o Render) o **IaaS** (instancia Linux VPS aislada).
 * **Beneficios**: Alta disponibilidad, escalabilidad ante picos estacionales de faena, redundancia de datos y baja latencia de respuesta para terminales en planta.
 
 ---
 
-## 10. Instalación y Puesta en Marcha
+## 11. Instalación y Puesta en Marcha
 
-### 10.1. Requisitos Previos
+### 11.1. Requisitos Previos
 * **Git** instalado ($\ge 2.30$)
 * **Docker** y **Docker Compose** (opcional, para despliegue aislado) o cualquier servidor web local.
 
-### 10.2. Ejecución con Docker (Recomendado)
+### 11.2. Ejecución con Docker (Recomendado)
 ```bash
 # 1. Clonar el repositorio
 git clone https://github.com/ferlautaro2001/frigotrack.git
@@ -558,12 +580,12 @@ docker compose up -d --build
 # Abrir: http://localhost:8080
 ```
 
-### 10.3. Ejecución Local Directa
+### 11.3. Ejecución Local Directa
 Simplemente abra el archivo `index.html` en cualquier navegador web moderno (Google Chrome, Mozilla Firefox, Microsoft Edge).
 
 ---
 
-## 11. Gobernanza del Proyecto y Matriz RACI
+## 12. Gobernanza del Proyecto y Matriz RACI
 
 Para asegurar una clara división de responsabilidades durante todo el ciclo de desarrollo, el equipo adopta la siguiente matriz de responsabilidades:
 

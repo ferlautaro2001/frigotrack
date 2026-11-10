@@ -3,764 +3,1018 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FrigoTrack - Logistics Manager Hub</title>
+    <title>FrigoTrack · Trazabilidad y control térmico en cadena de frío</title>
+    <meta
+      name="description"
+      content="Plataforma operativa para control térmico de cámaras frigoríficas, recepción de cortes cárnicos, gestión de stock por lotes y emisión de remitos de salida."
+    />
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="./assets/js/script.js"></script>
+    <script src="./assets/js/script.js" defer></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-      referrerpolicy="no-referrer"
-    />
     <link rel="stylesheet" href="./assets/css/styles.css" />
   </head>
-  <body class="min-h-screen text-slate-100 selection:bg-sky-500 selection:text-white bg-[#090d16]">
-    
-    <!-- STANDALONE AUTHENTICATION SCREEN (Shown when NOT logged in) -->
-    <div id="authScreen" class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-slate-950 via-[#0b0f17] to-slate-950">
-      <!-- Background Ambient Glow Effects -->
-      <div class="absolute -top-40 -left-40 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      <div class="w-full max-w-md glass-card rounded-3xl p-8 border border-slate-800 shadow-2xl relative z-10 space-y-6">
-        <!-- Brand Logo Header -->
-        <div class="text-center space-y-3">
-          <div class="w-14 h-14 mx-auto rounded-2xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400 shadow-[0_0_20px_rgba(56,189,248,0.25)]">
-            <i class="fa-solid fa-snowflake text-2xl animate-pulse"></i>
-          </div>
-          <div>
-            <h1 class="text-2xl font-black tracking-tight text-white">
-              Frigo<span class="text-sky-400 font-normal">Track</span>
-            </h1>
-            <p class="text-xs text-slate-400 font-medium mt-1">Gestión Logística de Cadena de Frío</p>
+  <body>
+    <!-- Sprite de iconos Lucide (16px, trazo 1.5) -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="icon-sprite" aria-hidden="true">
+      <symbol id="i-snowflake" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m10 20-1.25-2.5L6 18" /><path d="M10 4 8.75 6.5 6 6" /><path d="m14 20 1.25-2.5L18 18" /><path d="m14 4 1.25 2.5L18 6" /><path d="m17 21-3-6h-4" /><path d="m17 3-3 6 1.5 3" /><path d="M2 12h6.5L10 9" /><path d="m20 10-1.5 2 1.5 2" /><path d="M22 12h-6.5L14 15" /><path d="m4 10 1.5 2L4 14" /><path d="m7 21 3-6-1.5-3" /><path d="m7 3 3 6h4" /></symbol>
+      <symbol id="i-layout-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" /><rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" /></symbol>
+      <symbol id="i-clipboard-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><path d="m9 14 2 2 4-4" /></symbol>
+      <symbol id="i-warehouse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 21V10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v11" /><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 1.132-1.803l7.95-3.974a2 2 0 0 1 1.837 0l7.948 3.974A2 2 0 0 1 22 8z" /><path d="M6 13h12" /><path d="M6 17h12" /></symbol>
+      <symbol id="i-triangle-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /><path d="M12 9v4" /><path d="M12 17h.01" /></symbol>
+      <symbol id="i-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" /><path d="M15 18H9" /><path d="M19 18h2a2 2 0 0 0 1-1v-3.65a2 2 0 0 0-.22-.624l-3.48-4.35A2 2 0 0 0 17.52 8H14" /><circle cx="17" cy="18" r="2" /><circle cx="7" cy="18" r="2" /></symbol>
+      <symbol id="i-file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a2 2 0 0 0 1 1h5" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" /></symbol>
+      <symbol id="i-package-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12" /><path d="m16.5 14.5 5 5" /><path d="m16.5 19.5 5-5" /><path d="M21 10.5V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.729l7 4a2 2 0 0 0 2 .001l.13-.074" /><path d="M3.29 7 12 12l8.71-5" /><path d="m7.5 4.27 8.997 5.148" /></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-4.34-4.34" /><circle cx="11" cy="11" r="8" /></symbol>
+      <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0" /><path d="M3.262 15.326A1 1 0 0 0 4 17h16a2 2 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" /></symbol>
+      <symbol id="i-log-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16" /><path d="M4 12h16" /><path d="M4 19h16" /></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></symbol>
+      <symbol id="i-printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6" /><rect x="6" y="14" width="12" height="8" rx="1" /></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3" /><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m7 10 5 5 5-5" /></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></symbol>
+      <symbol id="i-thermometer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z" /></symbol>
+      <symbol id="i-shield-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a2 2 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a2 2 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" /></symbol>
+      <symbol id="i-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></symbol>
+      <!-- Código de barras 1D vectorial para etiquetas térmicas y remitos -->
+      <symbol id="barcode-1d" viewBox="0 0 160 28" fill="currentColor">
+        <rect x="0" y="0" width="3" height="28" />
+        <rect x="6" y="0" width="1.5" height="28" />
+        <rect x="10" y="0" width="4" height="28" />
+        <rect x="17" y="0" width="1.5" height="28" />
+        <rect x="21" y="0" width="3" height="28" />
+        <rect x="27" y="0" width="1.5" height="28" />
+        <rect x="32" y="0" width="4.5" height="28" />
+        <rect x="39" y="0" width="1.5" height="28" />
+        <rect x="43" y="0" width="3" height="28" />
+        <rect x="49" y="0" width="1.5" height="28" />
+        <rect x="53" y="0" width="1.5" height="28" />
+        <rect x="58" y="0" width="4" height="28" />
+        <rect x="65" y="0" width="2" height="28" />
+        <rect x="70" y="0" width="3" height="28" />
+        <rect x="76" y="0" width="1.5" height="28" />
+        <rect x="81" y="0" width="4.5" height="28" />
+        <rect x="88" y="0" width="1.5" height="28" />
+        <rect x="92" y="0" width="3" height="28" />
+        <rect x="98" y="0" width="2" height="28" />
+        <rect x="103" y="0" width="4" height="28" />
+        <rect x="110" y="0" width="1.5" height="28" />
+        <rect x="114" y="0" width="3" height="28" />
+        <rect x="120" y="0" width="1.5" height="28" />
+        <rect x="125" y="0" width="4" height="28" />
+        <rect x="132" y="0" width="2" height="28" />
+        <rect x="137" y="0" width="1.5" height="28" />
+        <rect x="141" y="0" width="4.5" height="28" />
+        <rect x="148" y="0" width="1.5" height="28" />
+        <rect x="152" y="0" width="3" height="28" />
+        <rect x="157" y="0" width="3" height="28" />
+      </symbol>
+    </svg>
+
+    <!-- ============================ PANTALLA DE ACCESO (RF-01) ============================ -->
+    <div id="authScreen" class="auth-shell">
+      <div class="auth-panel">
+        <div class="brand">
+          <span class="brand-glyph">
+            <svg class="icon icon-lg"><use href="#i-snowflake"></use></svg>
+          </span>
+          <div class="brand-text">
+            <span class="brand-name">FrigoTrack</span>
+            <span class="brand-sub">Planta Frigorífica · Control de Frío</span>
           </div>
         </div>
 
-        <!-- Login Form Controls -->
-        <div class="space-y-4 pt-2">
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider" for="roleSelect">Rol Operativo</label>
-            <select id="roleSelect" class="w-full rounded-xl p-3 text-xs outline-none bg-slate-900/90 border border-slate-800 focus:border-sky-500">
-              <option value="">Seleccionar rol...</option>
-              <option value="Administrador">Administrador</option>
-              <option value="Recepción">Recepción</option>
-              <option value="Logística">Logística</option>
-            </select>
+        <div class="auth-main">
+          <div class="auth-eyebrow">
+            <span class="status-dot"></span>
+            <span>SENASA · Norma térmica ≤ −18,0 °C</span>
           </div>
+          <h1 class="auth-headline">
+            Trazabilidad de lotes cárnicos, cámaras y remitos de salida
+          </h1>
+          <p class="auth-desc">
+            Seleccioná tu perfil operativo para habilitar los módulos correspondientes a tu función en planta.
+          </p>
 
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider" for="userName">Nombre de Usuario</label>
-            <input id="userName" type="text" placeholder="Ej: operador01" class="w-full rounded-xl p-3 text-xs outline-none bg-slate-900/90 border border-slate-800 focus:border-sky-500" />
+          <div class="auth-form">
+            <div>
+              <span class="field-label">Perfiles rápidos (RF-01)</span>
+              <div class="role-presets" role="group" aria-label="Perfiles operativos">
+                <button type="button" class="role-preset-btn is-selected" data-preset-role="Administrador" data-preset-user="m.ferreyra">
+                  <span class="role-preset-title">Administrador</span>
+                  <span class="role-preset-meta">Acceso total</span>
+                </button>
+                <button type="button" class="role-preset-btn" data-preset-role="Recepción" data-preset-user="j.mansilla">
+                  <span class="role-preset-title">Recepción</span>
+                  <span class="role-preset-meta">Ingreso y mermas</span>
+                </button>
+                <button type="button" class="role-preset-btn" data-preset-role="Logística" data-preset-user="r.acosta">
+                  <span class="role-preset-title">Logística</span>
+                  <span class="role-preset-meta">Despacho y remito</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="roleSelect">Rol operativo</label>
+              <select id="roleSelect" class="field">
+                <option value="">Seleccionar rol</option>
+                <option value="Administrador" selected>Administrador</option>
+                <option value="Recepción">Recepción</option>
+                <option value="Logística">Logística</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="userName">Operador</label>
+              <input
+                id="userName"
+                type="text"
+                class="field"
+                value="m.ferreyra"
+                placeholder="operador01"
+                autocomplete="off"
+                spellcheck="false"
+              />
+            </div>
+
+            <button id="loginBtn" class="btn btn-primary btn-lg w-full" type="button">
+              <span>Ingresar al tablero</span>
+              <svg class="icon"><use href="#i-arrow-right"></use></svg>
+            </button>
+            <p id="loginMsg" class="form-msg"></p>
           </div>
-
-          <button id="loginBtn" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 font-extrabold text-xs tracking-wide uppercase hover:brightness-110 transition-all duration-200 shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2 mt-2" type="button">
-            <i class="fa-solid fa-right-to-bracket text-sm"></i>Ingresar al Tablero
-          </button>
         </div>
 
-        <!-- Footer note -->
-        <p class="text-[11px] text-center text-slate-500 border-t border-slate-800/80 pt-4">
-          <i class="fa-solid fa-shield-halved text-sky-400 mr-1"></i>Acceso Restringido - Control de Calidad Frigorífica
-        </p>
+        <div class="auth-foot">
+          <span>Control de acceso por rol · PEPS / FIFO</span>
+          <span class="t-mono">v1.0 MVP</span>
+        </div>
+      </div>
+
+      <!-- Escenario derecho: Vista previa de material real (Etiqueta térmica SENASA + Telemetría) -->
+      <div class="auth-stage">
+        <div class="auth-stage-inner">
+          <div class="stage-caption">
+            <span>Vista previa de trazabilidad en cámara y etiqueta térmica de lote</span>
+            <span class="t-mono">Estación Muelle Sur · Turno noche</span>
+          </div>
+
+          <div class="thermal-label" aria-label="Ejemplo de etiqueta térmica de lote cárnico">
+            <div class="thermal-head">
+              <div>
+                <div class="thermal-plant">FRIGOTRACK · PLANTA AVELLANEDA · EST. OFICIAL N.º 1942</div>
+                <div class="thermal-sub">TRAZABILIDAD INTERNA DE CÁMARA Y DESPACHO MAYORISTA</div>
+              </div>
+              <span class="thermal-stamp">SENASA APROBADO</span>
+            </div>
+
+            <div class="thermal-main">
+              <div>
+                <span class="thermal-cell-label">Corte vacuno envasado</span>
+                <div class="thermal-cut">Cuarto delantero compensado</div>
+              </div>
+              <div class="text-right">
+                <span class="thermal-cell-label">Peso neto validado</span>
+                <div class="thermal-weight">275,5 kg</div>
+              </div>
+            </div>
+
+            <div class="thermal-grid">
+              <div>
+                <span class="thermal-cell-label">Lote interno</span>
+                <span class="thermal-cell-val">FT90127</span>
+              </div>
+              <div>
+                <span class="thermal-cell-label">Proveedor</span>
+                <span class="thermal-cell-val">Frigorífico Sur</span>
+              </div>
+              <div>
+                <span class="thermal-cell-label">Ubicación y frío</span>
+                <span class="thermal-cell-val">Cámara 1 · A7 (−21,0 °C)</span>
+              </div>
+              <div>
+                <span class="thermal-cell-label">Vida útil restante</span>
+                <span class="thermal-cell-val">125 días (≥ 3 meses)</span>
+              </div>
+            </div>
+
+            <div class="thermal-foot">
+              <svg class="barcode-svg" aria-hidden="true"><use href="#barcode-1d"></use></svg>
+              <span class="thermal-status-pill" data-state="ok">Estado OK · Apto despacho</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="instrument">
+              <div class="instrument-top">
+                <span class="instrument-label">Cámara 1 · Sector A</span>
+                <span class="instrument-sector">Cortes de exportación</span>
+              </div>
+              <span class="instrument-value t-accent">−19,4<span class="unit">°C</span></span>
+              <div class="rail">
+                <span class="rail-band" style="left: 14.3%; right: 34.3%"></span>
+                <span class="rail-marker" style="left: 30.3%"></span>
+              </div>
+              <div class="instrument-foot">
+                <span>Banda segura −25 °C a −18 °C</span>
+                <span class="status" data-state="ok">OK</span>
+              </div>
+            </div>
+
+            <div class="instrument">
+              <div class="instrument-top">
+                <span class="instrument-label">Cámara 3 · Sector C</span>
+                <span class="instrument-sector">Muelle de carga</span>
+              </div>
+              <span class="instrument-value t-crit">−14,2<span class="unit">°C</span></span>
+              <div class="rail">
+                <span class="rail-band" style="left: 14.3%; right: 34.3%"></span>
+                <span class="rail-marker" data-state="crit" style="left: 45.1%"></span>
+              </div>
+              <div class="instrument-foot">
+                <span>Apertura de puerta 15:00 h</span>
+                <span class="status" data-state="crit">Alerta roja</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- MAIN APPLICATION DASHBOARD LAYOUT (Hidden when NOT logged in) -->
-    <div id="appLayout" class="flex min-h-screen hidden relative">
-      
-      <!-- MOBILE SIDEBAR BACKDROP OVERLAY -->
-      <div id="sidebarOverlay" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-30 lg:hidden"></div>
+    <!-- ============================ APLICACIÓN PRINCIPAL ============================ -->
+    <div id="appLayout" class="app-shell is-hidden">
+      <div id="sidebarOverlay" class="sidebar-overlay is-hidden"></div>
 
-      <!-- FIXED / MOBILE SLIDE-OUT LEFT SIDEBAR NAVIGATION -->
-      <aside id="sidebar" class="w-64 glass-card border-r border-slate-800/80 p-5 flex-col justify-between hidden lg:flex fixed top-0 bottom-0 left-0 z-40 bg-slate-950/95 lg:bg-slate-950/40 backdrop-blur-xl transition-all duration-300">
-        <div class="space-y-6">
-          <!-- Logo & Brand Header -->
-          <div class="flex items-center justify-between px-2 py-1">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400 shadow-[0_0_15px_rgba(56,189,248,0.2)]">
-                <i class="fa-solid fa-snowflake text-xl"></i>
-              </div>
-              <div>
-                <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-1">
-                  Frigo<span class="text-sky-400 font-normal">Track</span>
-                </h1>
-                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Cold Chain Hub</p>
-              </div>
+      <aside id="sidebar" class="sidebar">
+        <div class="sidebar-head">
+          <div class="brand">
+            <span class="brand-glyph">
+              <svg class="icon icon-lg"><use href="#i-snowflake"></use></svg>
+            </span>
+            <div class="brand-text">
+              <span class="brand-name">FrigoTrack</span>
+              <span class="brand-sub">Cadena de frío</span>
             </div>
-            <!-- Close Mobile Menu Button -->
-            <button id="closeSidebarBtn" class="lg:hidden text-slate-400 hover:text-white p-1">
-              <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
           </div>
+          <button id="closeSidebarBtn" class="icon-btn sidebar-close" type="button" aria-label="Cerrar menú">
+            <svg class="icon"><use href="#i-x"></use></svg>
+          </button>
+        </div>
 
-          <!-- Navigation Links Container -->
-          <nav class="space-y-1.5" id="navContainer">
-            <button data-target="screen-login" class="nav-btn active w-full text-left px-3.5 py-2.5 rounded-xl font-semibold text-xs flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <i class="fa-solid fa-house w-4 text-center"></i>Dashboard
-              </div>
+        <div class="sidebar-nav-wrap">
+          <span class="nav-group-label">Operación de planta</span>
+          <nav class="nav-list" id="navContainer" aria-label="Secciones principales">
+            <button data-nav="dashboard" data-target="screen-login" class="nav-item active" type="button">
+              <svg class="icon"><use href="#i-layout-dashboard"></use></svg>
+              <span>Panel operativo</span>
             </button>
-            <button data-target="screen-recepcion" class="nav-btn w-full text-left px-3.5 py-2.5 rounded-xl font-medium text-xs flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <i class="fa-solid fa-calendar-check w-4 text-center"></i>Receptions
-              </div>
+            <button data-nav="recepcion" data-target="screen-recepcion" class="nav-item" type="button">
+              <svg class="icon"><use href="#i-clipboard-check"></use></svg>
+              <span>Recepción</span>
+              <span id="navLockRecepcion" class="nav-count is-hidden">Rol</span>
             </button>
-            <button data-target="screen-stock" class="nav-btn w-full text-left px-3.5 py-2.5 rounded-xl font-medium text-xs flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <i class="fa-solid fa-box-archive w-4 text-center"></i>Storage & Stock
-              </div>
+            <button data-nav="stock" data-target="screen-stock" class="nav-item" type="button">
+              <svg class="icon"><use href="#i-warehouse"></use></svg>
+              <span>Stock y cámaras</span>
             </button>
-
-            <button data-target="screen-stock" class="nav-btn w-full text-left px-3.5 py-2.5 rounded-xl font-medium text-xs flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <i class="fa-solid fa-triangle-exclamation w-4 text-center"></i>Alerts
-              </div>
-              <span id="kpiSidebarAlerts" class="w-5 h-5 rounded-full bg-sky-500/20 text-sky-400 text-[10px] font-bold flex items-center justify-center border border-sky-500/30">9</span>
-            </button>
-
-            <button data-target="screen-despacho" class="nav-btn w-full text-left px-3.5 py-2.5 rounded-xl font-medium text-xs flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <i class="fa-solid fa-truck-fast w-4 text-center"></i>Dispatch
-              </div>
+            <button data-nav="alertas" data-target="screen-stock" class="nav-item" type="button">
+              <svg class="icon"><use href="#i-triangle-alert"></use></svg>
+              <span>Alertas críticas</span>
+              <span id="kpiSidebarAlerts" class="nav-count">2</span>
             </button>
 
-            <button data-target="screen-remito" class="nav-btn w-full text-left px-3.5 py-2.5 rounded-xl font-medium text-xs flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <i class="fa-solid fa-file-invoice w-4 text-center"></i>Reports & Remitos
-              </div>
+            <span class="nav-group-label">Salida y auditoría</span>
+            <button data-nav="despacho" data-target="screen-despacho" class="nav-item" type="button">
+              <svg class="icon"><use href="#i-truck"></use></svg>
+              <span>Despacho</span>
+              <span id="navLockDespacho" class="nav-count is-hidden">Rol</span>
             </button>
-
-            <button data-target="screen-perdidas" class="nav-btn w-full text-left px-3.5 py-2.5 rounded-xl font-medium text-xs flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <i class="fa-solid fa-gear w-4 text-center"></i>Mermas & Adjustments
-              </div>
+            <button data-nav="remito" data-target="screen-remito" class="nav-item" type="button">
+              <svg class="icon"><use href="#i-file-text"></use></svg>
+              <span>Remitos</span>
+              <span id="kpiSidebarRemitos" class="nav-count">1</span>
+            </button>
+            <button data-nav="mermas" data-target="screen-perdidas" class="nav-item" type="button">
+              <svg class="icon"><use href="#i-package-x"></use></svg>
+              <span>Mermas y ajustes</span>
             </button>
           </nav>
         </div>
 
-        <!-- Logout Bottom Section -->
-        <div class="pt-4 border-t border-slate-800/80">
-          <button id="logoutBtn" class="nav-btn w-full text-left px-3.5 py-2.5 rounded-xl font-medium text-xs flex items-center gap-3 text-slate-400 hover:text-rose-400 transition" type="button">
-            <i class="fa-solid fa-right-from-bracket w-4 text-center"></i>Cerrar Sesión
+        <div class="sidebar-foot">
+          <div class="user-card">
+            <div id="userAvatar" class="avatar">MF</div>
+            <div class="brand-text">
+              <span id="userNameDisplay" class="brand-name">m.ferreyra</span>
+              <span id="currentRoleBadge" class="brand-sub">Administrador</span>
+            </div>
+          </div>
+          <button id="logoutBtn" class="nav-item" type="button">
+            <svg class="icon"><use href="#i-log-out"></use></svg>
+            <span>Cerrar sesión</span>
           </button>
         </div>
       </aside>
 
-      <!-- MAIN CONTENT WRAPPER -->
-      <div class="flex-1 lg:ml-64 flex flex-col min-w-0">
-        <!-- TOP HEADER BAR -->
-        <header class="p-3 sm:px-8 sm:py-4 border-b border-slate-800/60 bg-slate-950/60 backdrop-blur-md sticky top-0 z-20 flex items-center justify-between gap-3">
-          
-          <!-- Mobile Menu Hamburger Trigger -->
-          <button id="mobileMenuBtn" type="button" class="lg:hidden w-9 h-9 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white shrink-0">
-            <i class="fa-solid fa-bars text-sm"></i>
+      <div class="app-main">
+        <header class="topbar">
+          <button id="mobileMenuBtn" class="icon-btn lg:hidden" type="button" aria-label="Abrir menú">
+            <svg class="icon"><use href="#i-menu"></use></svg>
           </button>
 
-          <!-- Search Bar Input -->
-          <div class="relative w-full max-w-[200px] sm:max-w-md">
-            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-            <input type="text" placeholder="Buscar..." class="w-full pl-8 pr-3 py-1.5 sm:py-2 rounded-xl text-xs bg-slate-900/80 border border-slate-800 text-slate-200 outline-none placeholder:text-slate-500 focus:border-sky-500/50" />
+          <div class="search">
+            <svg class="icon"><use href="#i-search"></use></svg>
+            <input
+              id="globalSearchInput"
+              type="search"
+              class="search-input"
+              placeholder="Buscar lote, corte o proveedor"
+              aria-label="Buscar lote, corte o proveedor"
+            />
+            <kbd class="keycap" aria-hidden="true">/</kbd>
           </div>
 
-          <!-- Top Right Section: Bell & User Profile -->
-          <div class="flex items-center gap-2 sm:gap-4 shrink-0 relative">
-            <!-- Notification Bell Trigger Button -->
-            <button id="notificationBellBtn" type="button" class="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition">
-              <i class="fa-solid fa-bell text-xs"></i>
-              <span id="notificationBadge" class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-slate-950 font-bold text-[9px] flex items-center justify-center">3</span>
-            </button>
-
-            <!-- NOTIFICATION DROPDOWN POPUP -->
-            <div id="notificationDropdown" class="hidden absolute right-0 top-12 w-72 sm:w-96 glass-card rounded-2xl p-4 shadow-2xl border border-slate-800 z-50 space-y-3">
-              <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                  <i class="fa-solid fa-bell text-sky-400 text-xs"></i>
-                  <h4 class="text-xs font-bold text-white uppercase tracking-wider">Notificaciones Logísticas</h4>
-                </div>
-                <button id="markReadBtn" class="text-[10px] text-sky-400 font-semibold hover:underline">Marcar leídas</button>
-              </div>
-
-              <!-- Notification Items List -->
-              <div class="space-y-2 text-xs">
-                <div class="notification-item bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 flex items-start gap-3">
-                  <div class="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center shrink-0 mt-0.5">
-                    <i class="fa-solid fa-circle-exclamation text-xs"></i>
-                  </div>
-                  <div>
-                    <p class="font-bold text-slate-200 text-[11px]">Lote Próximo a Vencer (FT90125)</p>
-                    <p class="text-[10px] text-slate-400">Vencimiento en menos de 30 días en Cámara 1 - A3.</p>
-                    <span class="text-[9px] text-slate-500">Hace 10 min</span>
-                  </div>
-                </div>
-
-                <div class="notification-item bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 flex items-start gap-3">
-                  <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
-                    <i class="fa-solid fa-temperature-three-quarters text-xs"></i>
-                  </div>
-                  <div>
-                    <p class="font-bold text-slate-200 text-[11px]">Control de Temperatura</p>
-                    <p class="text-[10px] text-slate-400">Camión #3 ingresó con -17°C (Alerta de frío).</p>
-                    <span class="text-[9px] text-slate-500">Hace 35 min</span>
-                  </div>
-                </div>
-
-                <div class="notification-item bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 flex items-start gap-3">
-                  <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
-                    <i class="fa-solid fa-circle-check text-xs"></i>
-                  </div>
-                  <div>
-                    <p class="font-bold text-slate-200 text-[11px]">Despacho Confirmado</p>
-                    <p class="text-[10px] text-slate-400">Remito R-982143 emitido para Carnicería Norte.</p>
-                    <span class="text-[9px] text-slate-500">Hace 1 hora</span>
-                  </div>
-                </div>
-              </div>
+          <div class="topbar-right">
+            <div class="role-switcher-wrap">
+              <label class="role-switcher-label" for="quickRoleSelect">Rol activo</label>
+              <select id="quickRoleSelect" class="role-switcher" aria-label="Cambiar rol activo para pruebas de permisos">
+                <option value="Administrador">Administrador</option>
+                <option value="Recepción">Recepción</option>
+                <option value="Logística">Logística</option>
+              </select>
             </div>
 
-            <!-- User Profile Badge (Top Right) -->
-            <div class="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-3 border-l border-slate-800">
-              <div id="userAvatar" class="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-400 to-cyan-500 flex items-center justify-center text-slate-950 font-bold text-xs shadow-md shrink-0">
-                OP
-              </div>
-              <div class="hidden sm:block text-left text-xs">
-                <div class="flex items-center gap-1.5">
-                  <span id="userNameDisplay" class="font-bold text-white">Operador</span>
-                  <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981]"></span>
+            <div class="relative">
+              <button id="notificationBellBtn" class="icon-btn" type="button" aria-label="Notificaciones operativas">
+                <svg class="icon"><use href="#i-bell"></use></svg>
+                <span id="notificationBadge" class="notif-count">3</span>
+              </button>
+
+              <div id="notificationDropdown" class="popover is-hidden">
+                <div class="popover-head">
+                  <span class="popover-title">Eventos del turno</span>
+                  <button id="markReadBtn" class="popover-link" type="button">Marcar leídas</button>
                 </div>
-                <span id="currentRoleBadge" class="text-[10px] text-slate-400 font-medium">Logística</span>
+                <div id="notifListContainer" class="notif-list"></div>
               </div>
             </div>
           </div>
         </header>
 
-        <!-- MAIN DASHBOARD CONTENT AREA -->
-        <main class="p-4 sm:p-8 space-y-6 max-w-7xl">
-          <!-- SCREEN 1: DASHBOARD MAIN SCREEN -->
-          <section id="screen-login" class="screen active space-y-6">
-            <!-- ROW 1: 3 STAT WIDGET CARDS -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <!-- Widget 1: Receptions Today -->
-              <div class="glass-card rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between">
+        <main class="page">
+          <div class="page-inner">
+            <!-- ===================== 1. PANEL DE OPERACIONES (CU-04) ===================== -->
+            <section id="screen-login" class="screen active">
+              <div class="page-head">
                 <div>
-                  <h3 class="text-sm font-bold text-white tracking-tight">Receptions Today</h3>
-                  <div class="flex items-center gap-6 mt-3">
-                    <div>
-                      <span class="text-[10px] text-slate-400 uppercase font-semibold">Total</span>
-                      <p id="kpiRecepciones" class="text-2xl font-extrabold text-white">42</p>
-                    </div>
-                    <div>
-                      <span class="text-[10px] text-slate-400 uppercase font-semibold">On Time</span>
-                      <p class="text-2xl font-extrabold text-emerald-400">38</p>
-                    </div>
-                    <div>
-                      <span class="text-[10px] text-slate-400 uppercase font-semibold">Delayed</span>
-                      <p class="text-2xl font-extrabold text-rose-400">4</p>
-                    </div>
-                  </div>
+                  <h1 class="page-title">Panel de operaciones</h1>
+                  <p class="page-sub" id="turnoLabel">Turno noche</p>
                 </div>
-
-                <div class="flex items-end justify-between mt-5 pt-3 border-t border-slate-800/60">
-                  <div class="w-36 h-14">
-                    <span class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Chart</span>
-                    <canvas id="receptionsBarChart" class="w-full h-12"></canvas>
-                  </div>
-                  <div class="text-right">
-                    <span class="text-lg font-extrabold text-sky-400">92%</span>
-                    <p class="text-[10px] text-slate-400 font-medium">performance</p>
-                  </div>
+                <div class="page-actions">
+                  <span class="status-inline">
+                    <span class="status-dot" id="headerChamberDot" data-state="warn"></span>
+                    <span id="headerChamberText">3 cámaras activas · 1 excursión térmica</span>
+                  </span>
+                  <button id="primaryHeroActionBtn" class="btn btn-primary btn-lg" data-goto="screen-recepcion" type="button">
+                    <svg class="icon"><use href="#i-clipboard-check"></use></svg>
+                    <span id="primaryHeroActionLabel">Registrar recepción</span>
+                  </button>
                 </div>
               </div>
 
-              <!-- Widget 2: Expiration Alerts -->
-              <div class="glass-card rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between" style="background: radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.08) 0%, rgba(18, 26, 41, 0.7) 80%);">
-                <div>
-                  <h3 class="text-sm font-bold text-white tracking-tight">Expiration Alerts</h3>
-                  <div class="flex items-center gap-6 mt-4">
-                    <div>
-                      <span class="text-[10px] text-slate-400 uppercase font-semibold">Total Active</span>
-                      <p id="kpiVencer" class="text-3xl font-extrabold text-white mt-0.5">9</p>
-                    </div>
-                    <div class="pl-4 border-l border-slate-800">
-                      <span class="text-[10px] text-slate-400 uppercase font-semibold">Critical</span>
-                      <p class="text-3xl font-extrabold text-rose-400 mt-0.5">3</p>
-                    </div>
-                    <div class="pl-4 border-l border-slate-800">
-                      <span class="text-[10px] text-slate-400 uppercase font-semibold">Warning</span>
-                      <p class="text-3xl font-extrabold text-amber-400 mt-0.5">6</p>
-                    </div>
-                  </div>
+              <!-- Indicadores clave (KPIs) -->
+              <div class="stat-grid">
+                <div class="card stat">
+                  <span class="stat-label">Recepciones del turno</span>
+                  <span class="stat-value" id="kpiRecepciones">42</span>
+                  <span class="stat-meta" id="kpiRecepcionesMeta">+6 vs turno anterior · 38 en rango térmico</span>
                 </div>
-                <div class="mt-4 pt-3 border-t border-slate-800/60 flex items-center justify-between text-xs text-slate-400">
-                  <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>3 Lotes &lt; 2 Meses</span>
-                  <span class="text-[11px] text-sky-400 font-semibold cursor-pointer">Ver detalle →</span>
+
+                <div class="card stat">
+                  <span class="stat-label">Stock cárnico en cámaras</span>
+                  <span class="stat-value" id="kpiStockKg">2.332,5 kg</span>
+                  <span class="stat-meta" id="kpiStockMeta">6 lotes trazados · 78% de capacidad</span>
+                </div>
+
+                <div class="card stat" data-alert="crit">
+                  <span class="stat-label">Alertas de vencimiento (RF-05)</span>
+                  <span class="stat-value t-crit" id="kpiVencer">4</span>
+                  <span class="stat-meta"><span class="t-crit" id="kpiVencerCrit">2 en alerta roja (&lt; 2 m)</span> · <span class="t-warn" id="kpiVencerWarn">2 en atención (&lt; 3 m)</span></span>
+                </div>
+
+                <div class="card stat">
+                  <span class="stat-label">Despachos y remitos</span>
+                  <span class="stat-value" id="kpiDespachos">29</span>
+                  <span class="stat-meta" id="kpiDespachosMeta">24 completados · 100% frío validado</span>
                 </div>
               </div>
 
-              <!-- Widget 3: Dispatch Stats -->
-              <div class="glass-card rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between">
-                <div>
-                  <h3 class="text-sm font-bold text-white tracking-tight">Dispatch Stats</h3>
-                  <div class="flex items-center gap-6 mt-3">
-                    <div>
-                      <span class="text-[10px] text-slate-400 uppercase font-semibold">Total</span>
-                      <p id="kpiDespachos" class="text-2xl font-extrabold text-white">29</p>
-                    </div>
-                    <div>
-                      <span class="text-[10px] text-slate-400 uppercase font-semibold">Completed</span>
-                      <p class="text-2xl font-extrabold text-cyan-400">24</p>
-                    </div>
-                    <div>
-                      <span class="text-[10px] text-slate-400 uppercase font-semibold">Pending</span>
-                      <p class="text-2xl font-extrabold text-amber-400">5</p>
-                    </div>
+              <!-- Instrumentos lineales de cámaras frigoríficas -->
+              <div class="section-block">
+                <div class="section-head">
+                  <div>
+                    <h2 class="card-title">Cámaras frigoríficas y ocupación</h2>
+                    <span class="card-sub">Monitoreo térmico en tiempo real sobre riel de −30 °C a +5 °C</span>
                   </div>
+                  <span class="card-sub t-mono">Banda normativa SENASA: −25,0 °C a −18,0 °C</span>
                 </div>
-
-                <div class="flex items-end justify-between mt-4 pt-3 border-t border-slate-800/60">
-                  <div class="w-36 h-12">
-                    <span class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Trend Chart</span>
-                    <canvas id="dispatchLineChart" class="w-full h-10"></canvas>
-                  </div>
-                  <div class="text-right">
-                    <span class="text-lg font-extrabold text-cyan-400">85%</span>
-                    <p class="text-[10px] text-slate-400 font-medium">efficiency</p>
-                  </div>
-                </div>
+                <div id="camarasGrid" class="instrument-grid"></div>
               </div>
-            </div>
 
-            <!-- ROW 2: STORAGE OVERVIEW & LIVE ALERTS FEED -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-              <!-- Active Storage Overview Card -->
-              <div class="lg:col-span-7 glass-card rounded-2xl p-5 flex flex-col justify-between">
-                <h3 class="text-sm font-bold text-white tracking-tight mb-4">Active Storage Overview</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
-                  <!-- Chart.js Doughnut Chart -->
-                  <div class="flex items-center gap-4">
-                    <div class="relative w-24 h-24 flex items-center justify-center">
-                      <canvas id="storageDoughnutChart"></canvas>
-                      <div class="absolute text-xs font-extrabold text-sky-400">78%</div>
+              <!-- Gráfico principal de telemetría y alertas en vivo -->
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 section-block">
+                <div class="card card-pad lg:col-span-8">
+                  <div class="chart-head">
+                    <div>
+                      <h2 class="card-title" id="chartTitleText">Curva térmica · Cámara 3 (Sector C)</h2>
+                      <span class="card-sub" id="chartSubText">Últimas 12 horas · umbral máximo admisible −18,0 °C</span>
                     </div>
-                    <div class="space-y-1 text-xs">
-                      <div class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span>
-                        <span class="text-slate-300 font-medium">Used 78%</span>
+                    <div class="chart-controls">
+                      <div class="seg-group" role="tablist" aria-label="Seleccionar cámara para telemetría">
+                        <button type="button" class="seg-btn active" data-cam-chart="Cámara 3">Cámara 3</button>
+                        <button type="button" class="seg-btn" data-cam-chart="Cámara 1">Cámara 1</button>
+                        <button type="button" class="seg-btn" data-cam-chart="Cámara 2">Cámara 2</button>
                       </div>
-                      <div class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
-                        <span class="text-slate-400 font-medium">Free 22%</span>
+                      <div class="chart-figure">
+                        <span class="chart-value t-crit" id="chartCurrentTemp">−14,2 °C</span>
+                        <span class="chart-note" id="chartCurrentNote">Excursión desde 15:00 h</span>
                       </div>
                     </div>
                   </div>
+                  <div class="chart-frame">
+                    <canvas id="tempChart"></canvas>
+                  </div>
+                </div>
 
-                  <!-- Zone Thermometers -->
-                  <div class="grid grid-cols-3 gap-2">
-                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 text-center">
-                      <span class="text-[10px] text-slate-400 font-medium block">Zone A</span>
-                      <i class="fa-solid fa-temperature-three-quarters text-sky-400 text-sm my-1"></i>
-                      <p class="text-xs font-bold text-sky-400">-18°C</p>
-                    </div>
-                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 text-center">
-                      <span class="text-[10px] text-slate-400 font-medium block">Zone B</span>
-                      <i class="fa-solid fa-temperature-three-quarters text-sky-400 text-sm my-1"></i>
-                      <p class="text-xs font-bold text-sky-400">-20°C</p>
-                    </div>
-                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 text-center">
-                      <span class="text-[10px] text-slate-400 font-medium block">Zone C</span>
-                      <i class="fa-solid fa-temperature-three-quarters text-amber-400 text-sm my-1"></i>
-                      <p class="text-xs font-bold text-amber-400">2°C</p>
+                <div class="card card-pad lg:col-span-4 self-start">
+                  <div class="section-head">
+                    <div>
+                      <h2 class="card-title">Semáforo y eventos en vivo</h2>
+                      <span class="card-sub">Lotes críticos y estado de frío por sector</span>
                     </div>
                   </div>
+                  <div id="liveAlertsList" class="alert-list"></div>
                 </div>
               </div>
 
-              <!-- Live Alerts Feed Card -->
-              <div class="lg:col-span-5 glass-card rounded-2xl p-5 flex flex-col justify-between">
-                <div class="flex items-center justify-between mb-3">
-                  <h3 class="text-sm font-bold text-white tracking-tight">Live Alerts Feed</h3>
-                  <i class="fa-solid fa-ellipsis text-slate-500 text-xs"></i>
+              <!-- Tabla operativa de stock activo -->
+              <div class="section-block">
+                <div class="section-head">
+                  <div>
+                    <h2 class="card-title">Cola de recepción e inventario en cámara</h2>
+                    <span class="card-sub">Trazabilidad por código único FT90XXX y semáforo PEPS / FIFO</span>
+                  </div>
+                  <button class="btn btn-ghost" data-goto="screen-stock" type="button">
+                    <span>Ver inventario completo</span>
+                    <svg class="icon"><use href="#i-arrow-right"></use></svg>
+                  </button>
                 </div>
-                <div class="overflow-x-auto">
-                  <table class="w-full text-left text-xs">
-                    <thead class="text-slate-400 text-[10px] uppercase border-b border-slate-800">
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead>
                       <tr>
-                        <th class="pb-2">Time</th>
-                        <th class="pb-2">Product</th>
-                        <th class="pb-2">Zone</th>
-                        <th class="pb-2">Issue</th>
-                        <th class="pb-2 text-right">Status Pill</th>
+                        <th>Lote</th>
+                        <th>Corte cárnico</th>
+                        <th>Proveedor</th>
+                        <th>Ubicación</th>
+                        <th class="num">Temp. ingreso</th>
+                        <th class="num">Peso neto</th>
+                        <th class="num">Vencimiento</th>
+                        <th class="cell-right">Estado (RF-05)</th>
                       </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-800/40">
-                      <tr>
-                        <td class="py-2 text-slate-400">FT90123</td>
-                        <td class="py-2 font-medium text-slate-200">Salmon</td>
-                        <td class="py-2 text-slate-400">Zone A</td>
-                        <td class="py-2 text-slate-300">14:30</td>
-                        <td class="py-2 text-right">
-                          <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/40">OK</span>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="py-2 text-slate-400">FT90124</td>
-                        <td class="py-2 font-medium text-slate-200">DairyCorp</td>
-                        <td class="py-2 text-slate-400">Zone C</td>
-                        <td class="py-2 text-slate-300">Temp Warning</td>
-                        <td class="py-2 text-right">
-                          <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/40">Attention</span>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="py-2 text-slate-400">FT90125</td>
-                        <td class="py-2 font-medium text-slate-200">FarmFresh</td>
-                        <td class="py-2 text-slate-400">Zone A</td>
-                        <td class="py-2 text-slate-300">Critical</td>
-                        <td class="py-2 text-right">
-                          <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-bold rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/40">Critical</span>
-                        </td>
-                      </tr>
-                    </tbody>
+                    <tbody id="stockTableBody"></tbody>
                   </table>
                 </div>
               </div>
-            </div>
+            </section>
 
-            <!-- ROW 3: RECEPTIONS & STORAGE QUEUE TABLE -->
-            <div class="glass-card rounded-2xl p-6">
-              <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <!-- ===================== 2. RECEPCIÓN DE MERCADERÍA (CU-01, RF-02, RF-03, RF-04) ===================== -->
+            <section id="screen-recepcion" class="screen">
+              <div class="page-head">
                 <div>
-                  <h3 class="text-base font-bold text-white tracking-tight">Receptions & Storage Queue</h3>
-                  <p class="text-xs text-slate-400">Registro operativo en tiempo real e inventario activo</p>
+                  <h1 class="page-title">Recepción de mercadería</h1>
+                  <p class="page-sub">Ingreso de lotes cárnicos, control térmico de transporte (≤ −18 °C) y validación de vida útil (≥ 3 meses)</p>
                 </div>
               </div>
 
-              <!-- Main Interactive Table -->
-              <div class="overflow-x-auto rounded-xl border border-slate-800/80 bg-slate-950/40">
-                <table class="w-full text-left text-xs">
-                  <thead class="bg-slate-900/90 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
-                    <tr>
-                      <th class="p-3.5">ID Lote</th>
-                      <th class="p-3.5">Product</th>
-                      <th class="p-3.5">Supplier</th>
-                      <th class="p-3.5">Zone</th>
-                      <th class="p-3.5">Storage Temp</th>
-                      <th class="p-3.5 text-right">ETA / Status Pill</th>
-                    </tr>
-                  </thead>
-                  <tbody id="stockTableBody" class="divide-y divide-slate-800/50"></tbody>
-                </table>
-              </div>
-            </div>
-          </section>
-
-          <!-- SCREEN 2: RECEPCCIÓN SCREEN -->
-          <section id="screen-recepcion" class="screen glass-card rounded-2xl p-6 sm:p-8">
-            <div class="flex items-center gap-3 mb-6">
-              <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
-                <i class="fa-solid fa-clipboard-check"></i>
-              </div>
-              <div>
-                <h2 class="text-xl font-bold text-white tracking-tight">Recepción de Mercadería (Checklist)</h2>
-                <p class="text-xs text-slate-400">Ingreso de producto y control de parámetros de transporte en frío</p>
-              </div>
-            </div>
-
-            <form id="recepcionForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="proveedor">Proveedor</label>
-                <input id="proveedor" required type="text" placeholder="Ej: Frigorífico Sur" class="w-full rounded-xl p-2.5 text-xs" />
+              <div id="recepcionRoleNotice" class="notice section-block is-hidden" data-state="warn">
+                <svg class="icon"><use href="#i-lock"></use></svg>
+                <span>
+                  El rol activo (<strong id="recepcionRoleName">Logística</strong>) tiene permisos de solo lectura en Recepción (RF-01). Para registrar nuevos ingresos cambiá al rol <strong>Recepción</strong> o <strong>Administrador</strong>.
+                </span>
               </div>
 
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="producto">Producto</label>
-                <input id="producto" required type="text" placeholder="Ej: Cuarto delantero" class="w-full rounded-xl p-2.5 text-xs" />
-              </div>
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 section-block">
+                <form id="recepcionForm" class="card card-pad lg:col-span-7 form-grid" novalidate>
+                  <h2 class="card-title form-span">Datos del lote a ingresar</h2>
 
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="peso">Peso total (kg)</label>
-                <input id="peso" required type="number" step="0.1" min="1" placeholder="Ej: 450" class="w-full rounded-xl p-2.5 text-xs" />
-              </div>
-
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="ubicacion">Ubicación en cámara</label>
-                <input id="ubicacion" required type="text" placeholder="Ej: Cámara 1 - A3" class="w-full rounded-xl p-2.5 text-xs" />
-              </div>
-
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="fechaRecepcion">Fecha de recepción</label>
-                <input id="fechaRecepcion" required type="date" class="w-full rounded-xl p-2.5 text-xs" />
-              </div>
-
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="fechaVencimiento">Fecha de vencimiento</label>
-                <input id="fechaVencimiento" required type="date" class="w-full rounded-xl p-2.5 text-xs" />
-                <p id="vencimientoHelp" class="text-[11px] mt-1 text-slate-400 flex items-center gap-1">
-                  <i class="fa-solid fa-circle-info text-sky-400"></i>Requerido mínimo 3 meses entre recepción y vencimiento.
-                </p>
-              </div>
-
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="embalaje">Estado de embalaje</label>
-                <select id="embalaje" required class="w-full rounded-xl p-2.5 text-xs">
-                  <option value="">Seleccionar estado...</option>
-                  <option>Óptimo</option>
-                  <option>Con daños leves</option>
-                  <option>Comprometido</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="temperaturaCamion">Temperatura de camión</label>
-                <select id="temperaturaCamion" required class="w-full rounded-xl p-2.5 text-xs">
-                  <option value="">Seleccionar rango...</option>
-                  <option value="-25">-25°C a -20°C (Óptimo)</option>
-                  <option value="-19">-19°C a -18°C (Aceptable)</option>
-                  <option value="-17">Mayor a -18°C (Alerta de frío)</option>
-                </select>
-              </div>
-
-              <div class="md:col-span-2 mt-2">
-                <p class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Checklist de seguridad y calidad</p>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <label class="check-item flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" id="checkPrecinto" class="rounded accent-sky-500 w-4 h-4" required />
-                    <span class="text-xs font-medium text-slate-200">Precinto verificado</span>
-                  </label>
-                  <label class="check-item flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" id="checkLimpieza" class="rounded accent-sky-500 w-4 h-4" required />
-                    <span class="text-xs font-medium text-slate-200">Higiene en camión</span>
-                  </label>
-                  <label class="check-item flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" id="checkTermometro" class="rounded accent-sky-500 w-4 h-4" required />
-                    <span class="text-xs font-medium text-slate-200">Temp. validada por termómetro</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="md:col-span-2 flex flex-wrap items-center gap-4 mt-4">
-                <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 font-bold text-xs hover:brightness-110 transition-all duration-200 shadow-lg shadow-sky-500/20 flex items-center gap-2">
-                  <i class="fa-solid fa-floppy-disk"></i>Registrar recepción
-                </button>
-                <span id="recepcionMsg" class="text-xs font-medium"></span>
-              </div>
-            </form>
-          </section>
-
-          <!-- SCREEN 3: STOCK & INVENTORY SCREEN -->
-          <section id="screen-stock" class="screen glass-card rounded-2xl p-6 sm:p-8">
-            <div class="flex items-center justify-between mb-6">
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
-                  <i class="fa-solid fa-box-archive"></i>
-                </div>
-                <div>
-                  <h2 class="text-xl font-bold text-white tracking-tight">Stock & Storage Management</h2>
-                  <p class="text-xs text-slate-400">Inventario activo y semáforo de vencimiento por lotes</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="overflow-x-auto rounded-xl border border-slate-800/80 bg-slate-950/40">
-              <table class="w-full text-left text-xs">
-                <thead class="bg-slate-900/90 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
-                  <tr>
-                    <th class="p-3.5">Producto</th>
-                    <th class="p-3.5">Proveedor</th>
-                    <th class="p-3.5">Peso disponible</th>
-                    <th class="p-3.5">Fecha Vencimiento</th>
-                    <th class="p-3.5">Ubicación Cámara</th>
-                    <th class="p-3.5 text-right">Estado / Alerta</th>
-                  </tr>
-                </thead>
-                <tbody id="stockTableBodyFull" class="divide-y divide-slate-800/50"></tbody>
-              </table>
-            </div>
-          </section>
-
-          <!-- SCREEN 4: DESPACHO SCREEN -->
-          <section id="screen-despacho" class="screen glass-card rounded-2xl p-6 sm:p-8">
-            <div class="flex items-center gap-3 mb-6">
-              <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
-                <i class="fa-solid fa-truck-fast"></i>
-              </div>
-              <div>
-                <h2 class="text-xl font-bold text-white tracking-tight">Venta y Despacho</h2>
-                <p class="text-xs text-slate-400">Salida de mercadería, trazabilidad de lote y emisión de remito</p>
-              </div>
-            </div>
-
-            <form id="despachoForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="cliente">Cliente / Destino</label>
-                <input id="cliente" required type="text" placeholder="Ej: Carnicería Norte" class="w-full rounded-xl p-2.5 text-xs" />
-              </div>
-
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="productoDespacho">Producto disponible</label>
-                <select id="productoDespacho" required class="w-full rounded-xl p-2.5 text-xs"></select>
-              </div>
-
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="pesoDespacho">Peso a despachar (kg)</label>
-                <input id="pesoDespacho" required type="number" min="1" step="0.1" placeholder="Ej: 150" class="w-full rounded-xl p-2.5 text-xs" />
-              </div>
-
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="codigoLote">Código QR / Lote</label>
-                <input id="codigoLote" required type="text" placeholder="Escanear o ingresar lote" class="w-full rounded-xl p-2.5 text-xs" />
-              </div>
-
-              <div class="md:col-span-2 mt-1">
-                <label class="check-item flex items-center gap-3 cursor-pointer">
-                  <input id="camionRefrigerado" type="checkbox" class="rounded accent-sky-500 w-4 h-4" required />
-                  <span class="text-xs font-medium text-slate-200">Confirmo carga en camión refrigerado con temperatura de salida validada.</span>
-                </label>
-              </div>
-
-              <div class="md:col-span-2 flex flex-wrap items-center gap-4 mt-4">
-                <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 font-bold text-xs hover:brightness-110 transition-all duration-200 shadow-lg shadow-sky-500/20 flex items-center gap-2">
-                  <i class="fa-solid fa-check"></i>Confirmar despacho y generar remito
-                </button>
-                <span id="despachoMsg" class="text-xs font-medium"></span>
-              </div>
-            </form>
-          </section>
-
-          <!-- SCREEN 5: REMITO SCREEN -->
-          <section id="screen-remito" class="screen glass-card rounded-2xl p-6 sm:p-8">
-            <div class="flex items-center justify-between mb-6 no-print">
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
-                  <i class="fa-solid fa-file-invoice"></i>
-                </div>
-                <div>
-                  <h2 class="text-xl font-bold text-white tracking-tight">Remito Oficial de Salida</h2>
-                  <p class="text-xs text-slate-400">Documentación oficial de transporte y trazabilidad de frío</p>
-                </div>
-              </div>
-              <div class="flex gap-2">
-                <button id="printRemitoBtn" type="button" class="px-4 py-2 rounded-xl bg-sky-500/15 text-sky-400 hover:bg-sky-500/25 border border-sky-500/30 text-xs font-semibold transition flex items-center gap-2">
-                  <i class="fa-solid fa-print"></i>Imprimir
-                </button>
-                <button id="downloadRemitoBtn" type="button" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 text-xs font-semibold transition flex items-center gap-2">
-                  <i class="fa-solid fa-download"></i>Descargar TXT
-                </button>
-              </div>
-            </div>
-
-            <div id="remitoDocument" class="bg-slate-950/80 border border-slate-800 rounded-xl p-6 shadow-2xl">
-              <div class="flex justify-between items-start border-b border-slate-800 pb-5 mb-5">
-                <div>
-                  <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-snowflake text-sky-400 text-lg"></i>
-                    <h3 class="text-xl font-extrabold text-white">REMITO DE SALIDA</h3>
+                  <div class="field-group">
+                    <label class="field-label" for="proveedor">Proveedor frigorífico</label>
+                    <input id="proveedor" required type="text" class="field" placeholder="Frigorífico Sur" />
                   </div>
-                  <p class="text-xs text-slate-400 mt-0.5">FrigoTrack Logística - Cadena de Frío Controlada</p>
-                </div>
-                <div class="text-right text-xs">
-                  <p class="text-slate-400">N° Remito: <span id="remitoNumero" class="font-bold text-sky-400">-</span></p>
-                  <p class="text-slate-400">Fecha: <span id="remitoFecha" class="font-semibold text-slate-200">-</span></p>
-                </div>
-              </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-                  <span class="text-slate-400 block text-[10px] uppercase font-bold">Cliente / Destino</span>
-                  <span id="remitoCliente" class="font-semibold text-slate-100 text-sm">-</span>
-                </div>
-                <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-                  <span class="text-slate-400 block text-[10px] uppercase font-bold">Producto Despachado</span>
-                  <span id="remitoProducto" class="font-semibold text-slate-100 text-sm">-</span>
-                </div>
-                <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-                  <span class="text-slate-400 block text-[10px] uppercase font-bold">Peso Total</span>
-                  <span id="remitoPeso" class="font-semibold text-sky-400 text-sm">-</span>
-                </div>
-                <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-                  <span class="text-slate-400 block text-[10px] uppercase font-bold">Código QR / Lote</span>
-                  <span id="remitoLote" class="font-semibold text-slate-100 text-sm">-</span>
-                </div>
-                <div class="md:col-span-2 bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-                  <span class="text-slate-400 block text-[10px] uppercase font-bold">Validación de Salida</span>
-                  <span id="remitoSalida" class="font-medium text-emerald-400">-</span>
-                </div>
-              </div>
-            </div>
-          </section>
+                  <div class="field-group">
+                    <label class="field-label" for="producto">Corte cárnico / producto</label>
+                    <input id="producto" required type="text" class="field" placeholder="Bife ancho sin hueso" />
+                  </div>
 
-          <!-- SCREEN 6: PÉRDIDAS SCREEN -->
-          <section id="screen-perdidas" class="screen glass-card rounded-2xl p-6 sm:p-8">
-            <div class="flex items-center gap-3 mb-6">
-              <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-              </div>
-              <div>
-                <h2 class="text-xl font-bold text-white tracking-tight">Registro de Pérdidas y Devoluciones</h2>
-                <p class="text-xs text-slate-400">Control de mermas, rupturas de cadena de frío y devoluciones</p>
-              </div>
-            </div>
+                  <div class="field-group">
+                    <label class="field-label" for="peso">Peso neto total (kg)</label>
+                    <input id="peso" required type="number" step="0.1" min="0.5" class="field" placeholder="450,0" />
+                  </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
-              <form id="perdidasForm" class="lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="md:col-span-3">
-                  <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Nuevo Registro de Merma</h3>
+                  <div class="field-group">
+                    <label class="field-label" for="ubicacion">Ubicación asignada en cámara</label>
+                    <select id="ubicacion" required class="field">
+                      <option value="">Seleccionar cámara y sector</option>
+                      <option value="Cámara 1 · A3">Cámara 1 · Sector A3 (−19,4 °C)</option>
+                      <option value="Cámara 1 · A7">Cámara 1 · Sector A7 (−19,4 °C)</option>
+                      <option value="Cámara 2 · B2">Cámara 2 · Sector B2 (−20,8 °C)</option>
+                      <option value="Cámara 2 · B5">Cámara 2 · Sector B5 (−20,8 °C)</option>
+                      <option value="Cámara 3 · C1">Cámara 3 · Sector C1 (−14,2 °C)</option>
+                    </select>
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label" for="fechaRecepcion">Fecha de recepción</label>
+                    <input id="fechaRecepcion" required type="date" class="field" />
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label" for="fechaVencimiento">Fecha de vencimiento</label>
+                    <input id="fechaVencimiento" required type="date" class="field" />
+                    <p class="field-help">
+                      <svg class="icon"><use href="#i-info"></use></svg>
+                      <span>RF-03: vida útil mínima de 3 meses desde la recepción</span>
+                    </p>
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label" for="embalaje">Estado y tipo de embalaje</label>
+                    <select id="embalaje" required class="field">
+                      <option value="">Seleccionar estado</option>
+                      <option value="Vacío termoencogible óptimo">Vacío termoencogible óptimo</option>
+                      <option value="Caja exportación 20 kg óptima">Caja exportación 20 kg óptima</option>
+                      <option value="Media res enfundada óptima">Media res enfundada óptima</option>
+                      <option value="Con daños leves en caja externa">Con daños leves en caja externa</option>
+                    </select>
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label" for="temperaturaCamion">Temperatura del camión (°C)</label>
+                    <select id="temperaturaCamion" required class="field">
+                      <option value="">Seleccionar lectura térmica</option>
+                      <option value="-22">−22,0 °C (Congelado profundo · óptimo)</option>
+                      <option value="-20">−20,0 °C (En rango normativo · óptimo)</option>
+                      <option value="-18">−18,0 °C (Límite normativo aceptable)</option>
+                      <option value="-16">−16,0 °C (Superior a −18 °C · alerta de frío)</option>
+                      <option value="-14">−14,0 °C (Excursión térmica · alerta crítica)</option>
+                    </select>
+                  </div>
+
+                  <div class="form-span">
+                    <span class="field-label">Checklist sanitario de muelle (obligatorio)</span>
+                    <div class="check-list">
+                      <label class="check-card">
+                        <input type="checkbox" id="checkPrecinto" class="check" checked />
+                        <span>Precinto sanitario SENASA y guía de tránsito verificados</span>
+                      </label>
+                      <label class="check-card">
+                        <input type="checkbox" id="checkLimpieza" class="check" checked />
+                        <span>Condiciones higiénicas de caja refrigerada conformes</span>
+                      </label>
+                      <label class="check-card">
+                        <input type="checkbox" id="checkTermometro" class="check" checked />
+                        <span>Lectura contrastada con termómetro punzón calibrado</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div id="recepcionConfirm" class="notice form-span is-hidden" data-state="warn">
+                    <svg class="icon"><use href="#i-triangle-alert"></use></svg>
+                    <div class="w-full">
+                      <p id="recepcionConfirmTexto" class="m-0 mb-3"></p>
+                      <div class="flex gap-2 flex-wrap">
+                        <button id="recepcionConfirmOk" class="btn btn-primary" type="button">Registrar con alerta</button>
+                        <button id="recepcionConfirmCancel" class="btn btn-ghost" type="button">Cancelar</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-span form-actions">
+                    <button id="submitRecepcionBtn" type="submit" class="btn btn-primary btn-lg">
+                      <svg class="icon"><use href="#i-clipboard-check"></use></svg>
+                      <span>Registrar recepción</span>
+                    </button>
+                    <span id="recepcionMsg" class="form-msg"></span>
+                  </div>
+                </form>
+
+                <!-- Columna derecha: Etiqueta térmica en vivo (Momento físico en código) -->
+                <div class="lg:col-span-5 flex flex-col gap-4">
+                  <div class="card card-pad">
+                    <div class="section-head">
+                      <div>
+                        <h2 class="card-title">Etiqueta térmica de lote a emitir</h2>
+                        <span class="card-sub">Vista previa instantánea según datos cargados</span>
+                      </div>
+                      <span class="t-mono t-muted" id="previewLoteCode">FT90129</span>
+                    </div>
+
+                    <div class="thermal-label" id="liveLabelPreview">
+                      <div class="thermal-head">
+                        <div>
+                          <div class="thermal-plant">FRIGOTRACK · RECEPCIÓN MUELLE SUR</div>
+                          <div class="thermal-sub" id="previewProveedor">PROVEEDOR: PENDIENTE DE CARGA</div>
+                        </div>
+                        <span class="thermal-stamp" id="previewTempBadge">≤ −18,0 °C</span>
+                      </div>
+
+                      <div class="thermal-main">
+                        <div>
+                          <span class="thermal-cell-label">Corte cárnico</span>
+                          <div class="thermal-cut" id="previewProducto">Corte sin especificar</div>
+                        </div>
+                        <div class="text-right">
+                          <span class="thermal-cell-label">Peso neto</span>
+                          <div class="thermal-weight" id="previewPeso">0,0 kg</div>
+                        </div>
+                      </div>
+
+                      <div class="thermal-grid">
+                        <div>
+                          <span class="thermal-cell-label">Código lote</span>
+                          <span class="thermal-cell-val" id="previewCodigoCell">FT90129</span>
+                        </div>
+                        <div>
+                          <span class="thermal-cell-label">Ubicación</span>
+                          <span class="thermal-cell-val" id="previewUbicacion">—</span>
+                        </div>
+                        <div>
+                          <span class="thermal-cell-label">Ingreso</span>
+                          <span class="thermal-cell-val" id="previewRecepcion">—</span>
+                        </div>
+                        <div>
+                          <span class="thermal-cell-label">Vencimiento</span>
+                          <span class="thermal-cell-val" id="previewVencimiento">—</span>
+                        </div>
+                      </div>
+
+                      <div class="thermal-foot">
+                        <svg class="barcode-svg" aria-hidden="true"><use href="#barcode-1d"></use></svg>
+                        <span class="thermal-status-pill" id="previewStatusPill" data-state="ok">Esperando fechas</span>
+                      </div>
+                    </div>
+
+                    <div class="notice mt-4">
+                      <svg class="icon"><use href="#i-info"></use></svg>
+                      <span>
+                        Regla de negocio US-101: el sistema bloquea automáticamente cualquier lote cuya fecha de vencimiento sea menor a 3 meses desde la fecha de recepción.
+                      </span>
+                    </div>
+                  </div>
                 </div>
+              </div>
+            </section>
+
+            <!-- ===================== 3. STOCK Y CÁMARAS (RF-05) ===================== -->
+            <section id="screen-stock" class="screen">
+              <div class="page-head">
                 <div>
-                  <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="causaPerdida">Causa del incidente</label>
-                  <select id="causaPerdida" required class="w-full rounded-xl p-2.5 text-xs">
-                    <option value="">Seleccionar causa...</option>
-                    <option>Pérdida de frío</option>
-                    <option>Vencimiento</option>
-                    <option>Daño de embalaje</option>
-                    <option>Devolución cliente</option>
-                  </select>
+                  <h1 class="page-title">Stock y cámaras frigoríficas</h1>
+                  <p class="page-sub">Inventario cárnico trazado por lote y semáforo automatizado de caducidad</p>
                 </div>
+                <div class="page-actions">
+                  <div class="seg-group" role="tablist" aria-label="Filtrar lotes por estado de semáforo">
+                    <button type="button" class="seg-btn active" data-stock-filter="all">Todos</button>
+                    <button type="button" class="seg-btn" data-stock-filter="crit">Alerta roja (&lt; 2 m)</button>
+                    <button type="button" class="seg-btn" data-stock-filter="warn">Atención (&lt; 3 m)</button>
+                    <button type="button" class="seg-btn" data-stock-filter="ok">OK (≥ 3 m)</button>
+                  </div>
+                </div>
+              </div>
 
+              <div class="instrument-grid section-block" id="camarasGridStock"></div>
+
+              <div class="section-block">
+                <div class="table-toolbar">
+                  <div>
+                    <h2 class="card-title">Inventario activo en cámaras</h2>
+                    <span class="card-sub" id="stockFilterSummary">Mostrando todos los lotes disponibles en cámara</span>
+                  </div>
+                </div>
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Lote</th>
+                        <th>Corte cárnico</th>
+                        <th>Proveedor</th>
+                        <th>Ubicación</th>
+                        <th>Embalaje</th>
+                        <th class="num">Temp. camión</th>
+                        <th class="num">Peso disponible</th>
+                        <th class="num">Recepción</th>
+                        <th class="num">Vencimiento</th>
+                        <th class="cell-right">Semáforo (RF-05)</th>
+                      </tr>
+                    </thead>
+                    <tbody id="stockTableBodyFull"></tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+
+            <!-- ===================== 4. VENTA Y DESPACHO (CU-02, RF-06, RF-07) ===================== -->
+            <section id="screen-despacho" class="screen">
+              <div class="page-head">
                 <div>
-                  <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="fechaPerdida">Fecha</label>
-                  <input id="fechaPerdida" required type="date" class="w-full rounded-xl p-2.5 text-xs" />
+                  <h1 class="page-title">Venta y despacho</h1>
+                  <p class="page-sub">Descuento atómico de stock, verificación de transporte refrigerado y emisión de remito oficial</p>
                 </div>
+              </div>
 
+              <div id="despachoRoleNotice" class="notice section-block is-hidden" data-state="warn">
+                <svg class="icon"><use href="#i-lock"></use></svg>
+                <span>
+                  El rol activo (<strong id="despachoRoleName">Recepción</strong>) no está autorizado para emitir despachos de salida (RF-01). Cambiá al rol <strong>Logística</strong> o <strong>Administrador</strong>.
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 section-block">
+                <form id="despachoForm" class="card card-pad lg:col-span-7 form-grid" novalidate>
+                  <h2 class="card-title form-span">Orden de salida de cámara</h2>
+
+                  <div class="field-group">
+                    <label class="field-label" for="cliente">Cliente / establecimiento receptor</label>
+                    <input id="cliente" required type="text" class="field" placeholder="Frigorífico Regional Norte S.A." />
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label" for="productoDespacho">Lote disponible en cámara</label>
+                    <select id="productoDespacho" required class="field"></select>
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label" for="pesoDespacho">Peso a despachar (kg)</label>
+                    <input id="pesoDespacho" required type="number" min="0.5" step="0.1" class="field" placeholder="150,0" />
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label" for="codigoLote">Código de lote verificado</label>
+                    <input id="codigoLote" required type="text" class="field t-mono" placeholder="FT90123" />
+                  </div>
+
+                  <div class="form-span">
+                    <span class="field-label">Verificación obligatoria de cadena de frío (RF-07)</span>
+                    <label class="check-card">
+                      <input id="camionRefrigerado" type="checkbox" class="check" />
+                      <span>Confirmo carga en camión refrigerado con equipo térmico operativo (≤ −18,0 °C)</span>
+                    </label>
+                  </div>
+
+                  <div class="form-span form-actions">
+                    <button id="submitDespachoBtn" type="submit" class="btn btn-primary btn-lg">
+                      <svg class="icon"><use href="#i-truck"></use></svg>
+                      <span>Confirmar despacho y emitir remito</span>
+                    </button>
+                    <span id="despachoMsg" class="form-msg"></span>
+                  </div>
+                </form>
+
+                <div class="lg:col-span-5">
+                  <div class="card card-pad">
+                    <div class="section-head">
+                      <div>
+                        <h2 class="card-title">Balance de stock del lote</h2>
+                        <span class="card-sub">Control de disponibilidad previo al descuento atómico</span>
+                      </div>
+                    </div>
+
+                    <div class="alert-list">
+                      <div class="alert-row">
+                        <div class="alert-body">
+                          <span class="alert-meta">Lote seleccionado</span>
+                          <span class="alert-title t-mono" id="despPreviewLote">—</span>
+                        </div>
+                        <span class="status" id="despPreviewSemaforo" data-state="ok">Seleccionar lote</span>
+                      </div>
+                      <div class="alert-row">
+                        <div class="alert-body">
+                          <span class="alert-meta">Stock disponible en cámara</span>
+                          <span class="alert-title t-mono" id="despPreviewDisponible">0,0 kg</span>
+                        </div>
+                      </div>
+                      <div class="alert-row">
+                        <div class="alert-body">
+                          <span class="alert-meta">Saldo remanente luego del despacho</span>
+                          <span class="alert-title t-mono" id="despPreviewRemanente">0,0 kg</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="notice mt-4">
+                      <svg class="icon"><use href="#i-shield-check"></use></svg>
+                      <span>
+                        Homeostasis del sistema: no se autoriza la emisión del remito si el peso solicitado supera la existencia del lote o si no se valida la unidad refrigerada.
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ===================== 5. REMITO OFICIAL DE SALIDA (RF-08) ===================== -->
+            <section id="screen-remito" class="screen">
+              <div class="page-head no-print">
                 <div>
-                  <label class="block text-xs font-semibold text-slate-300 mb-1.5" for="detallePerdida">Observaciones / Detalle</label>
-                  <input id="detallePerdida" type="text" placeholder="Breve observación" class="w-full rounded-xl p-2.5 text-xs" />
+                  <h1 class="page-title">Remito oficial de salida</h1>
+                  <p class="page-sub">Comprobante auditable con trazabilidad de lote, peso descontado y certificación de frío</p>
                 </div>
-
-                <div class="md:col-span-3">
-                  <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 text-white font-bold text-xs hover:brightness-110 transition-all duration-200 shadow-lg shadow-rose-500/20 flex items-center gap-2">
-                    <i class="fa-solid fa-plus"></i>Registrar merma o devolución
+                <div class="page-actions">
+                  <button id="printRemitoBtn" class="btn btn-ghost" type="button">
+                    <svg class="icon"><use href="#i-printer"></use></svg>
+                    <span>Imprimir comprobante</span>
+                  </button>
+                  <button id="downloadRemitoBtn" class="btn btn-primary" type="button">
+                    <svg class="icon"><use href="#i-download"></use></svg>
+                    <span>Descargar TXT</span>
                   </button>
                 </div>
-              </form>
+              </div>
 
-              <!-- Chart.js Mermas Breakdown Chart -->
-              <div class="lg:col-span-4 bg-slate-900/60 p-4 rounded-2xl border border-slate-800 flex flex-col items-center justify-center">
-                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Distribución de Mermas</span>
-                <div class="w-36 h-36 relative flex items-center justify-center">
-                  <canvas id="mermasChart"></canvas>
+              <div id="remitoDocument" class="doc section-block">
+                <div class="doc-head">
+                  <div class="doc-brand">
+                    <div class="doc-type-box">R</div>
+                    <div>
+                      <div class="doc-title">REMITO OFICIAL DE SALIDA · FRIGOTRACK</div>
+                      <div class="doc-sub">Planta Frigorífica Avellaneda · Trazabilidad de Cadena de Frío SENASA</div>
+                    </div>
+                  </div>
+                  <div class="doc-meta">
+                    <div>
+                      <span class="doc-label">Comprobante N.º</span>
+                      <span class="doc-value doc-value-lg t-mono" id="remitoNumero">R-982143</span>
+                    </div>
+                    <div>
+                      <span class="doc-label">Fecha de emisión</span>
+                      <span class="doc-value doc-value-lg t-mono" id="remitoFecha">—</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="doc-grid">
+                  <div>
+                    <span class="doc-label">Cliente / destinatario</span>
+                    <span class="doc-value doc-value-lg" id="remitoCliente">Carnicería Norte S.R.L.</span>
+                  </div>
+                  <div>
+                    <span class="doc-label">Corte cárnico despachado</span>
+                    <span class="doc-value doc-value-lg" id="remitoProducto">Bife ancho sin hueso</span>
+                  </div>
+                  <div>
+                    <span class="doc-label">Peso neto despachado</span>
+                    <span class="doc-value doc-value-lg t-mono" id="remitoPeso">120,0 kg</span>
+                  </div>
+                  <div>
+                    <span class="doc-label">Código de lote SENASA</span>
+                    <span class="doc-value doc-value-lg t-mono" id="remitoLote">FT90123</span>
+                  </div>
+                </div>
+
+                <div class="doc-foot">
+                  <div>
+                    <span class="doc-label">Certificación de transporte</span>
+                    <span class="doc-value t-ok" id="remitoSalida">Carga en camión refrigerado confirmada (≤ −18,0 °C)</span>
+                  </div>
+                  <div>
+                    <span class="doc-label">Operador responsable</span>
+                    <span class="doc-value t-mono" id="remitoOperador">m.ferreyra</span>
+                  </div>
+                  <svg class="barcode-svg" aria-hidden="true"><use href="#barcode-1d"></use></svg>
                 </div>
               </div>
-            </div>
 
-            <div class="overflow-x-auto rounded-xl border border-slate-800/80 bg-slate-950/40">
-              <table class="w-full text-left text-xs">
-                <thead class="bg-slate-900/90 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
-                  <tr>
-                    <th class="p-3.5">Fecha</th>
-                    <th class="p-3.5">Causa de pérdida</th>
-                    <th class="p-3.5">Detalle u Observación</th>
-                  </tr>
-                </thead>
-                <tbody id="perdidasBody" class="divide-y divide-slate-800/50"></tbody>
-              </table>
-            </div>
-          </section>
+              <p id="remitoMsg" class="form-msg mt-4 no-print"></p>
+
+              <div class="section-block no-print">
+                <div class="section-head">
+                  <div>
+                    <h2 class="card-title">Historial de remitos emitidos en el turno</h2>
+                    <span class="card-sub">Seleccioná un comprobante para visualizarlo, imprimirlo o descargarlo en formato TXT</span>
+                  </div>
+                </div>
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>N.º Remito</th>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Corte cárnico</th>
+                        <th>Lote</th>
+                        <th class="num">Peso despachado</th>
+                        <th>Condición térmica</th>
+                        <th class="cell-right">Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody id="remitosHistoryBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+
+            <!-- ===================== 6. MERMAS Y AJUSTES (CU-03, RF-09) ===================== -->
+            <section id="screen-perdidas" class="screen">
+              <div class="page-head">
+                <div>
+                  <h1 class="page-title">Mermas y ajustes de inventario</h1>
+                  <p class="page-sub">Auditoría de pérdidas por quiebre térmico, caducidad, daño de embalaje o devolución</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 section-block">
+                <form id="perdidasForm" class="card card-pad lg:col-span-7 form-grid" novalidate>
+                  <h2 class="card-title form-span">Registrar incidente de merma</h2>
+
+                  <div class="field-group">
+                    <label class="field-label" for="causaPerdida">Causa tipificada (RF-09)</label>
+                    <select id="causaPerdida" required class="field">
+                      <option value="">Seleccionar causa</option>
+                      <option value="Pérdida de frío">Pérdida de frío</option>
+                      <option value="Vencimiento">Vencimiento</option>
+                      <option value="Daño de embalaje">Daño de embalaje</option>
+                      <option value="Devolución cliente">Devolución cliente</option>
+                    </select>
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label" for="fechaPerdida">Fecha del incidente</label>
+                    <input id="fechaPerdida" required type="date" class="field" />
+                  </div>
+
+                  <div class="field-group form-span">
+                    <label class="field-label" for="detallePerdida">Lote afectado y observación técnica</label>
+                    <input
+                      id="detallePerdida"
+                      required
+                      type="text"
+                      class="field"
+                      placeholder="Ej. Lote FT90126 · Excursión térmica en muelle C (18,0 kg)"
+                    />
+                  </div>
+
+                  <div class="form-span form-actions">
+                    <button type="submit" class="btn btn-danger btn-lg">
+                      <svg class="icon"><use href="#i-plus"></use></svg>
+                      <span>Registrar merma</span>
+                    </button>
+                    <span id="perdidasMsg" class="form-msg"></span>
+                  </div>
+                </form>
+
+                <div class="card card-pad lg:col-span-5">
+                  <div class="section-head">
+                    <div>
+                      <h2 class="card-title">Distribución por causa</h2>
+                      <span class="card-sub">Incidencia acumulada en auditoría</span>
+                    </div>
+                  </div>
+                  <div id="mermasRank" class="rank-list"></div>
+                  <p class="rank-total" id="mermasTotal"></p>
+                </div>
+              </div>
+
+              <div class="section-block">
+                <div class="section-head">
+                  <div>
+                    <h2 class="card-title">Registro histórico de mermas</h2>
+                    <span class="card-sub">Trazabilidad de bajas sanitarias y devoluciones comerciales</span>
+                  </div>
+                </div>
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Fecha</th>
+                        <th>Causa tipificada</th>
+                        <th>Detalle y lote afectado</th>
+                      </tr>
+                    </thead>
+                    <tbody id="perdidasBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+          </div>
         </main>
       </div>
     </div>
   </body>
 </html>
-
-
-
