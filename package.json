@@ -1,0 +1,19 @@
+{
+  "name": "frigotrack",
+  "version": "1.0.0",
+  "description": "Sistema de gestión logística y trazabilidad en cadena de frío: control de stock en cámaras frigoríficas, telemetría y remitos de despacho.",
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve -l 3000 .",
+    "start": "npx serve -l 3000 ."
+  },
+  "keywords": [
+    "cold-chain",
+    "logistics",
+    "traceability",
+    "dashboard",
+    "utn"
+  ],
+  "author": "UTN FRA",
+  "license": "MIT"
+}

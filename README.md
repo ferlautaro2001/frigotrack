@@ -581,7 +581,20 @@ docker compose up -d --build
 ```
 
 ### 11.3. Ejecución Local Directa
-Simplemente abra el archivo `index.html` en cualquier navegador web moderno (Google Chrome, Mozilla Firefox, Microsoft Edge).
+
+Al utilizar arquitectura modular con **JavaScript ES6 Modules (`type="module"`)**, se recomienda ejecutar con cualquier servidor HTTP local:
+
+```bash
+# Opción A (con Node.js):
+npm run dev
+
+# Opción B (con Python):
+python -m http.server 3000
+
+# Opción C (con VS Code):
+# Clic derecho en index.html -> "Open with Live Server"
+```
+Luego ingrese a `http://localhost:3000` en su navegador.
 
 ---
 
